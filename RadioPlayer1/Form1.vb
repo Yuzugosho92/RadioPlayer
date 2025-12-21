@@ -30,7 +30,7 @@ Public Class Form1
     Dim volumeProvider As VolumeSampleProvider
     Dim Wo, Wo2, Wo3 As WaveOut
 
-    Dim MusicList As New List(Of Music)
+    Dim MusicList As New MusicList
     Dim TalkList As New List(Of Talk)
 
     Dim Rnd As New Random
@@ -129,7 +129,7 @@ Public Class Form1
             End If
 
             If GenreCount >= 3 AndAlso SelectMusic.TypeEnum = Music.WaveType.Music Then
-                If MusicList(i).TypeEnum = Music.WaveType.Jingle Then
+                If MusicList(i).TypeEnum = Music.WaveType.Jingle OrElse MusicList.ExistsType(Music.WaveType.Jingle) = False Then
                     IsExiter = True
                     GenreCount = 0
                 Else
@@ -549,7 +549,7 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
             Reader.Close()
 
             'JSON文字列を音楽情報クラスに登録
-            MusicList = JsonSerializer.Deserialize(Of List(Of Music))(str)
+            MusicList = JsonSerializer.Deserialize(Of MusicList)(str)
 
         Catch ex As FileNotFoundException
             '音楽情報ファイルが無い場合、スルーする

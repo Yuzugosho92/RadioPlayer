@@ -1,5 +1,26 @@
 ﻿Imports System.Text.Json.Serialization
 
+Public Class MusicList
+    Inherits List(Of Music)
+
+    '指定したタイプの音楽が存在するかを返す
+    Public Function ExistsType(type As Music.WaveType) As Boolean
+
+        For i As Integer = 0 To Me.Count - 1
+            '一致したタイプがあれば、Trueを返す
+            If Me.Item(i).TypeEnum = type Then
+                Return True
+            End If
+        Next
+
+        '見つからなかったらFalseを返す
+        Return False
+    End Function
+
+End Class
+
+
+
 Public Class Music
     Implements System.IComparable(Of Music)
 
