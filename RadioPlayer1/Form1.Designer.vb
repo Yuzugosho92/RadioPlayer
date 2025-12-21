@@ -107,7 +107,7 @@ Partial Class Form1
         Label2.Name = "Label2"
         Label2.Size = New Size(350, 232)
         Label2.TabIndex = 6
-        Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(MP3, MP4, FLAC)"
+        Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(Wave, MP3, MP4, FLAC)"
         Label2.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' NUD_StartTime
@@ -118,7 +118,7 @@ Partial Class Form1
         NUD_StartTime.Maximum = New Decimal(New Integer() {1000, 0, 0, 0})
         NUD_StartTime.Name = "NUD_StartTime"
         NUD_StartTime.Size = New Size(86, 31)
-        NUD_StartTime.TabIndex = 8
+        NUD_StartTime.TabIndex = 4
         ' 
         ' NUD_EndingTime
         ' 
@@ -126,7 +126,7 @@ Partial Class Form1
         NUD_EndingTime.Maximum = New Decimal(New Integer() {1000, 0, 0, 0})
         NUD_EndingTime.Name = "NUD_EndingTime"
         NUD_EndingTime.Size = New Size(86, 31)
-        NUD_EndingTime.TabIndex = 9
+        NUD_EndingTime.TabIndex = 5
         ' 
         ' NUD_IntroTime
         ' 
@@ -134,7 +134,7 @@ Partial Class Form1
         NUD_IntroTime.Maximum = New Decimal(New Integer() {1000, 0, 0, 0})
         NUD_IntroTime.Name = "NUD_IntroTime"
         NUD_IntroTime.Size = New Size(86, 31)
-        NUD_IntroTime.TabIndex = 10
+        NUD_IntroTime.TabIndex = 6
         ' 
         ' NUD_OutroTime
         ' 
@@ -142,7 +142,7 @@ Partial Class Form1
         NUD_OutroTime.Maximum = New Decimal(New Integer() {1000, 0, 0, 0})
         NUD_OutroTime.Name = "NUD_OutroTime"
         NUD_OutroTime.Size = New Size(86, 31)
-        NUD_OutroTime.TabIndex = 11
+        NUD_OutroTime.TabIndex = 7
         ' 
         ' Label3
         ' 
@@ -185,7 +185,7 @@ Partial Class Form1
         Button5.Location = New Point(6, 215)
         Button5.Name = "Button5"
         Button5.Size = New Size(112, 34)
-        Button5.TabIndex = 16
+        Button5.TabIndex = 9
         Button5.Text = "変更"
         Button5.UseVisualStyleBackColor = True
         ' 
@@ -194,7 +194,7 @@ Partial Class Form1
         Button6.Location = New Point(205, 128)
         Button6.Name = "Button6"
         Button6.Size = New Size(71, 34)
-        Button6.TabIndex = 17
+        Button6.TabIndex = 2
         Button6.Text = "+10"
         Button6.UseVisualStyleBackColor = True
         ' 
@@ -203,7 +203,7 @@ Partial Class Form1
         Button7.Location = New Point(128, 128)
         Button7.Name = "Button7"
         Button7.Size = New Size(71, 34)
-        Button7.TabIndex = 18
+        Button7.TabIndex = 1
         Button7.Text = "-10"
         Button7.UseVisualStyleBackColor = True
         ' 
@@ -212,7 +212,7 @@ Partial Class Form1
         Button8.Location = New Point(237, 136)
         Button8.Name = "Button8"
         Button8.Size = New Size(112, 34)
-        Button8.TabIndex = 19
+        Button8.TabIndex = 10
         Button8.Text = "この時間！"
         Button8.UseVisualStyleBackColor = True
         ' 
@@ -221,7 +221,7 @@ Partial Class Form1
         Button9.Location = New Point(282, 128)
         Button9.Name = "Button9"
         Button9.Size = New Size(70, 34)
-        Button9.TabIndex = 20
+        Button9.TabIndex = 3
         Button9.Text = "ラスト"
         Button9.UseVisualStyleBackColor = True
         ' 
@@ -240,7 +240,7 @@ Partial Class Form1
         NUD_IntroMaxLength.Maximum = New Decimal(New Integer() {1000, 0, 0, 0})
         NUD_IntroMaxLength.Name = "NUD_IntroMaxLength"
         NUD_IntroMaxLength.Size = New Size(86, 31)
-        NUD_IntroMaxLength.TabIndex = 21
+        NUD_IntroMaxLength.TabIndex = 8
         ' 
         ' Label8
         ' 
@@ -257,7 +257,7 @@ Partial Class Form1
         HScrollBar1.Location = New Point(0, 692)
         HScrollBar1.Name = "HScrollBar1"
         HScrollBar1.Size = New Size(921, 39)
-        HScrollBar1.TabIndex = 29
+        HScrollBar1.TabIndex = 12
         HScrollBar1.Value = 100
         ' 
         ' GroupBox1
@@ -277,7 +277,7 @@ Partial Class Form1
         GroupBox1.Location = New Point(10, 400)
         GroupBox1.Name = "GroupBox1"
         GroupBox1.Size = New Size(363, 260)
-        GroupBox1.TabIndex = 30
+        GroupBox1.TabIndex = 4
         GroupBox1.TabStop = False
         GroupBox1.Text = "タイミング調整"
         ' 
@@ -301,11 +301,11 @@ Partial Class Form1
         ListView1.FullRowSelect = True
         ListView1.GridLines = True
         ListView1.HideSelection = True
-        ListView1.LabelEdit = True
         ListView1.Location = New Point(389, 411)
+        ListView1.MultiSelect = False
         ListView1.Name = "ListView1"
         ListView1.Size = New Size(520, 247)
-        ListView1.TabIndex = 32
+        ListView1.TabIndex = 11
         ListView1.UseCompatibleStateImageBehavior = False
         ListView1.View = View.Details
         ' 
