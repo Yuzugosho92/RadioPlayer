@@ -671,7 +671,7 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
             Dim Extension = Path.GetExtension(FileName(i)).ToLower
 
             'MP3かFLACならば、解析作業に入る
-            If Extension = ".flac" OrElse Extension = ".mp3" OrElse Extension = ".mp4" Then
+            If Extension = ".flac" OrElse Extension = ".mp3" OrElse Extension = ".mp4" OrElse Extension = ".wav" Then
                 'すでに同じファイルが登録されていないか確認
                 For Each oMu As Music In MusicList
                     '登録されていたら、このファイルを解析しない
