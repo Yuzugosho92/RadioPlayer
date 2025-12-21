@@ -281,6 +281,7 @@ Public Class Form1
         GenreCount += 1
 
 
+        Button1.Text = "一時停止"
 
         'タイトルテロップを描画
         Label1.Refresh()
@@ -436,8 +437,35 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
                 OnTalk = True
 
-            ElseIf SelectMusic.OutroFileName IsNot Nothing Then
-                Wo3.Play()
+            ElseIf SelectMusic.TypeEnum = Music.WaveType.Jingle Then
+                'タイプがジングルならば
+
+                Dim oTalk As Talk
+                Dim Tx As String 'テロップ表示用
+                Dim Scenario As String 'スピーク用
+
+                'DJを選択
+                Dim SelectedVoice As Integer = (Rnd.Next(0, VoiceList.Count))
+
+                Do
+                    '台本を抽選
+                    oTalk = TalkList(Rnd.Next(0, TalkList.Count))
+
+                    'アウトロ用ならDoを出る
+                    If oTalk.TypeEnum = Talk.TalkType.Call Then
+                        Exit Do
+                    End If
+                Loop
+
+                '台本を入力
+                Tx = oTalk.Text
+                Scenario = oTalk.Text
+
+                Label10.Text = Tx
+
+                ZundamonTalk(Scenario, VoiceList(SelectedVoice).Id)
+
+                OnTalk = True
             End If
 
         End If

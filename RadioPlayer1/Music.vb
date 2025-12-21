@@ -194,6 +194,8 @@ Public Class Talk
                     _type = TalkType.Intro
                 Case "outro"
                     _type = TalkType.Outro
+                Case "call"
+                    _type = TalkType.Call
             End Select
         End Set
     End Property
@@ -208,6 +210,7 @@ Public Class Talk
     Public Enum TalkType
         Intro
         Outro
+        [Call]
     End Enum
 
     '雰囲気・時間帯
