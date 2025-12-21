@@ -78,6 +78,7 @@ Partial Class Form2
         GroupBox1.TabIndex = 31
         GroupBox1.TabStop = False
         GroupBox1.Text = "タイミング調声"
+        GroupBox1.Visible = False
         ' 
         ' Label3
         ' 
@@ -179,7 +180,7 @@ Partial Class Form2
         ' 
         btn_OK.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
         btn_OK.DialogResult = DialogResult.OK
-        btn_OK.Location = New Point(436, 536)
+        btn_OK.Location = New Point(436, 316)
         btn_OK.Name = "btn_OK"
         btn_OK.Size = New Size(112, 34)
         btn_OK.TabIndex = 16
@@ -325,7 +326,7 @@ Partial Class Form2
         ' 
         btn_Cancel.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
         btn_Cancel.DialogResult = DialogResult.Cancel
-        btn_Cancel.Location = New Point(554, 536)
+        btn_Cancel.Location = New Point(554, 316)
         btn_Cancel.Name = "btn_Cancel"
         btn_Cancel.Size = New Size(112, 34)
         btn_Cancel.TabIndex = 16
@@ -336,7 +337,7 @@ Partial Class Form2
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(675, 582)
+        ClientSize = New Size(675, 362)
         Controls.Add(btn_Cancel)
         Controls.Add(btn_OK)
         Controls.Add(GroupBox2)

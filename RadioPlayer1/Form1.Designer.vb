@@ -44,8 +44,6 @@ Partial Class Form1
         Label7 = New Label()
         NUD_IntroMaxLength = New NumericUpDown()
         Label8 = New Label()
-        Button10 = New Button()
-        TextBox1 = New TextBox()
         HScrollBar1 = New HScrollBar()
         GroupBox1 = New GroupBox()
         Label10 = New Label()
@@ -97,7 +95,7 @@ Partial Class Form1
         Label1.ForeColor = SystemColors.Window
         Label1.Location = New Point(0, 33)
         Label1.Name = "Label1"
-        Label1.Size = New Size(881, 92)
+        Label1.Size = New Size(921, 92)
         Label1.TabIndex = 4
         ' 
         ' Label2
@@ -107,7 +105,7 @@ Partial Class Form1
         Label2.BorderStyle = BorderStyle.FixedSingle
         Label2.Location = New Point(561, 165)
         Label2.Name = "Label2"
-        Label2.Size = New Size(310, 232)
+        Label2.Size = New Size(350, 232)
         Label2.TabIndex = 6
         Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(MP3, MP4, FLAC)"
         Label2.TextAlign = ContentAlignment.MiddleCenter
@@ -253,33 +251,12 @@ Partial Class Form1
         Label8.Size = New Size(0, 25)
         Label8.TabIndex = 23
         ' 
-        ' Button10
-        ' 
-        Button10.Location = New Point(884, 343)
-        Button10.Name = "Button10"
-        Button10.Size = New Size(112, 34)
-        Button10.TabIndex = 27
-        Button10.Text = "Button10"
-        Button10.UseVisualStyleBackColor = True
-        Button10.Visible = False
-        ' 
-        ' TextBox1
-        ' 
-        TextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left
-        TextBox1.Location = New Point(884, 404)
-        TextBox1.Multiline = True
-        TextBox1.Name = "TextBox1"
-        TextBox1.ScrollBars = ScrollBars.Both
-        TextBox1.Size = New Size(354, 260)
-        TextBox1.TabIndex = 28
-        TextBox1.Visible = False
-        ' 
         ' HScrollBar1
         ' 
         HScrollBar1.Dock = DockStyle.Bottom
         HScrollBar1.Location = New Point(0, 692)
         HScrollBar1.Name = "HScrollBar1"
-        HScrollBar1.Size = New Size(881, 39)
+        HScrollBar1.Size = New Size(921, 39)
         HScrollBar1.TabIndex = 29
         HScrollBar1.Value = 100
         ' 
@@ -327,7 +304,7 @@ Partial Class Form1
         ListView1.LabelEdit = True
         ListView1.Location = New Point(389, 411)
         ListView1.Name = "ListView1"
-        ListView1.Size = New Size(480, 247)
+        ListView1.Size = New Size(520, 247)
         ListView1.TabIndex = 32
         ListView1.UseCompatibleStateImageBehavior = False
         ListView1.View = View.Details
@@ -383,7 +360,7 @@ Partial Class Form1
         MenuStrip1.Items.AddRange(New ToolStripItem() {ToolStripMenuItem1})
         MenuStrip1.Location = New Point(0, 0)
         MenuStrip1.Name = "MenuStrip1"
-        MenuStrip1.Size = New Size(881, 33)
+        MenuStrip1.Size = New Size(921, 33)
         MenuStrip1.TabIndex = 34
         MenuStrip1.Text = "MenuStrip1"
         ' 
@@ -404,13 +381,11 @@ Partial Class Form1
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(881, 756)
-        Controls.Add(TextBox1)
+        ClientSize = New Size(921, 756)
         Controls.Add(ListView1)
         Controls.Add(Label10)
         Controls.Add(GroupBox1)
         Controls.Add(HScrollBar1)
-        Controls.Add(Button10)
         Controls.Add(Label8)
         Controls.Add(Button9)
         Controls.Add(Button7)
@@ -456,8 +431,6 @@ Partial Class Form1
     Friend WithEvents Label7 As Label
     Friend WithEvents NUD_IntroMaxLength As NumericUpDown
     Friend WithEvents Label8 As Label
-    Friend WithEvents Button10 As Button
-    Friend WithEvents TextBox1 As TextBox
     Friend WithEvents HScrollBar1 As HScrollBar
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents Label10 As Label

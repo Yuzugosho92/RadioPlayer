@@ -753,11 +753,12 @@ L1:     Next
 
 
 
-
+    '音量バー
     Private Sub HScrollBar1_Scroll(sender As Object, e As ScrollEventArgs) Handles HScrollBar1.Scroll
 
-        Wo.Volume = (e.NewValue / 100)
-
+        If Wo IsNot Nothing Then
+            Wo.Volume = (e.NewValue / 100)
+        End If
 
     End Sub
 
@@ -788,23 +789,6 @@ L1:     Next
 
     End Sub
 
-    Private Sub Button10_Click(sender As Object, e As EventArgs) Handles Button10.Click
-
-        Dim shell As New ShellClass
-        Dim f = shell.NameSpace(Path.GetDirectoryName("Z:\MP3ミュージック\え\栄冠は君に輝く_ガレナイア_FX9.mp3"))
-        Dim item = f.ParseName(Path.GetFileName("Z:\MP3ミュージック\え\栄冠は君に輝く_ガレナイア_FX9.mp3"))
-
-        For i As Integer = 0 To 1000
-
-            TextBox1.Text &= i & ": " & f.GetDetailsOf(item, i) & vbCrLf
-        Next
-
-
-
-
-
-
-    End Sub
 
 
 
