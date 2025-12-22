@@ -109,7 +109,7 @@ Partial Class Form1
         Label2.Name = "Label2"
         Label2.Size = New Size(350, 232)
         Label2.TabIndex = 6
-        Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(Wave, MP3, MP4, FLAC)"
+        Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(Wave, MP3, MP4, m4a, FLAC)"
         Label2.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' NUD_StartTime

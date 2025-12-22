@@ -723,63 +723,65 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
             Dim Extension = Path.GetExtension(FileName(i)).ToLower
 
-            'MP3かFLACならば、解析作業に入る
-            If Extension = ".flac" OrElse Extension = ".mp3" OrElse Extension = ".mp4" OrElse Extension = ".wav" Then
-                'すでに同じファイルが登録されていないか確認
-                For Each oMu As Music In MusicList
-                    '登録されていたら、このファイルを解析しない
-                    If oMu.FileName = FileName(i) Then
-                        GoTo L1
+            '音楽ファイルならば、解析作業に入る
+            Select Case Extension
+                Case ".flac", ".mp3", ".mp4", ".wav", ".m4a"
+
+                    'すでに同じファイルが登録されていないか確認
+                    For Each oMu As Music In MusicList
+                        '登録されていたら、このファイルを解析しない
+                        If oMu.FileName = FileName(i) Then
+                            GoTo L1
+                        End If
+                    Next
+
+                    '新しい音楽データ箱を作成
+                    Dim oMusic As New Music
+
+                    '各種データを登録
+                    oMusic.Type = "Music"
+                    oMusic.FileName = FileName(i)
+                    oMusic.StartTime = 0
+
+                    '音楽ファイルのタグを開く
+                    Dim shell As New ShellClass
+                    Dim f = shell.NameSpace(Path.GetDirectoryName(oMusic.FileNameFull))
+                    Dim item = f.ParseName(Path.GetFileName(oMusic.FileNameFull))
+
+
+                    Dim MusicLength As Date = DateTime.Parse(f.GetDetailsOf(item, 27))
+                    oMusic.EndingTime = Math.Min(120, MusicLength.Minute * 60 + MusicLength.Second)
+
+                    oMusic.Title = f.GetDetailsOf(item, 21)
+                    oMusic.TitleSort = f.GetDetailsOf(item, 310)
+
+                    If oMusic.Title = "" Then
+                        oMusic.Title = IO.Path.GetFileNameWithoutExtension(oMusic.FileNameFull)
                     End If
-                Next
 
-                '新しい音楽データ箱を作成
-                Dim oMusic As New Music
+                    If f.GetDetailsOf(item, 237) = "" Then
+                        oMusic.Artist = f.GetDetailsOf(item, 20)
+                    Else
+                        oMusic.Artist = f.GetDetailsOf(item, 237)
+                    End If
 
-                '各種データを登録
-                oMusic.Type = "Music"
-                oMusic.FileName = FileName(i)
-                oMusic.StartTime = 0
-
-                '音楽ファイルのタグを開く
-                Dim shell As New ShellClass
-                Dim f = shell.NameSpace(Path.GetDirectoryName(oMusic.FileNameFull))
-                Dim item = f.ParseName(Path.GetFileName(oMusic.FileNameFull))
+                    oMusic.ArtistSort = f.GetDetailsOf(item, 241)
 
 
-                Dim MusicLength As Date = DateTime.Parse(f.GetDetailsOf(item, 27))
-                oMusic.EndingTime = Math.Min(120, MusicLength.Minute * 60 + MusicLength.Second)
-
-                oMusic.Title = f.GetDetailsOf(item, 21)
-                oMusic.TitleSort = f.GetDetailsOf(item, 310)
-
-                If oMusic.Title = "" Then
-                    oMusic.Title = IO.Path.GetFileNameWithoutExtension(oMusic.FileNameFull)
-                End If
-
-                If f.GetDetailsOf(item, 237) = "" Then
-                    oMusic.Artist = f.GetDetailsOf(item, 20)
-                Else
-                    oMusic.Artist = f.GetDetailsOf(item, 237)
-                End If
-
-                oMusic.ArtistSort = f.GetDetailsOf(item, 241)
+                    MusicList.Add(oMusic)
 
 
-                MusicList.Add(oMusic)
+                    'リストビューに追加
+                    ListView1.Items.Add(oMusic.Title)
+                    ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(oMusic.Artist)
+                    ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(oMusic.Type)
+                    ListView1.Items(ListView1.Items.Count - 1).Tag = oMusic
 
 
-                'リストビューに追加
-                ListView1.Items.Add(oMusic.Title)
-                ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(oMusic.Artist)
-                ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(oMusic.Type)
-                ListView1.Items(ListView1.Items.Count - 1).Tag = oMusic
+                    SelectMusic = oMusic
+                    InNewMusic = True
 
-
-                SelectMusic = oMusic
-                InNewMusic = True
-
-            End If
+            End Select
 
 L1:     Next
 
