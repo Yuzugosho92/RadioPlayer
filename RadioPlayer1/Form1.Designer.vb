@@ -59,6 +59,7 @@ Partial Class Form1
         MenuStrip1 = New MenuStrip()
         ToolStripMenuItem1 = New ToolStripMenuItem()
         ToolStripMenuItem3 = New ToolStripMenuItem()
+        VoiceToolStripMenuItem = New ToolStripMenuItem()
         CheckBox1 = New CheckBox()
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -367,7 +368,7 @@ Partial Class Form1
         ' 
         ' ToolStripMenuItem1
         ' 
-        ToolStripMenuItem1.DropDownItems.AddRange(New ToolStripItem() {ToolStripMenuItem3})
+        ToolStripMenuItem1.DropDownItems.AddRange(New ToolStripItem() {ToolStripMenuItem3, VoiceToolStripMenuItem})
         ToolStripMenuItem1.Name = "ToolStripMenuItem1"
         ToolStripMenuItem1.Size = New Size(78, 29)
         ToolStripMenuItem1.Text = "メニュー"
@@ -377,6 +378,12 @@ Partial Class Form1
         ToolStripMenuItem3.Name = "ToolStripMenuItem3"
         ToolStripMenuItem3.Size = New Size(239, 34)
         ToolStripMenuItem3.Text = "ゲイン再読み込み"
+        ' 
+        ' VoiceToolStripMenuItem
+        ' 
+        VoiceToolStripMenuItem.Name = "VoiceToolStripMenuItem"
+        VoiceToolStripMenuItem.Size = New Size(239, 34)
+        VoiceToolStripMenuItem.Text = "ボイス選択(&V)"
         ' 
         ' CheckBox1
         ' 
@@ -460,5 +467,6 @@ Partial Class Form1
     Friend WithEvents ToolStripMenuItem2 As ToolStripSeparator
     Friend WithEvents DelToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents CheckBox1 As CheckBox
+    Friend WithEvents VoiceToolStripMenuItem As ToolStripMenuItem
 
 End Class

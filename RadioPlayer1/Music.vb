@@ -253,9 +253,9 @@ Public Class VoiceCharacter
         Me.MySelf = mySelf
     End Sub
 
-    Public Id As Integer
+    Public Property Id As Integer
     Public Property Name As String
-
     Public Property MySelf As String
+    Public Property Use As Boolean = True
 
 End Class

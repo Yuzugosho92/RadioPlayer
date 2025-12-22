@@ -25,10 +25,10 @@ Imports System.Threading
 
 Public Class Form1
 
-    Dim MusicReader, MusicReader2, MusicReader3 As AudioFileReader
+    Dim MusicReader As AudioFileReader
     Dim OffsetSample As OffsetSampleProvider
     Dim volumeProvider As VolumeSampleProvider
-    Dim Wo, Wo2, Wo3 As WaveOut
+    Dim Wo As WaveOut
 
     Dim MusicList As New MusicList
     Dim TalkList As New List(Of Talk)
@@ -43,29 +43,6 @@ Public Class Form1
 
     'フォームスタート
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
-        'キャラクターを登録
-        VoiceList.Add(New VoiceCharacter(0, "四国めたん あまあま", "四国めたんよ"))
-        VoiceList.Add(New VoiceCharacter(1, "ずんだもん あまあま", "ずんだもんなのだ"))
-        VoiceList.Add(New VoiceCharacter(2, "四国めたん", "四国めたんよ"))
-        VoiceList.Add(New VoiceCharacter(3, "ずんだもん", "ずんだもんなのだ"))
-        VoiceList.Add(New VoiceCharacter(4, "四国めたん_セクシー", "四国めたんよ"))
-        VoiceList.Add(New VoiceCharacter(5, "ずんだもん_セクシー", "ずんだもんなのだ"))
-        VoiceList.Add(New VoiceCharacter(6, "四国めたん_ツンツン", "四国めたんよ"))
-        VoiceList.Add(New VoiceCharacter(7, "ずんだもん_ツンツン", "ずんだもんなのだ"))
-        VoiceList.Add(New VoiceCharacter(8, "春日部つむぎ", "あーしです"))
-        VoiceList.Add(New VoiceCharacter(9, "波音リツ", "波音リツです"))
-        VoiceList.Add(New VoiceCharacter(10, "雨晴はう", "雨晴はうです"))
-        VoiceList.Add(New VoiceCharacter(11, "玄野武宏", "玄野武宏です"))
-        VoiceList.Add(New VoiceCharacter(12, "白上虎太郎", "白上虎太郎です"))
-        VoiceList.Add(New VoiceCharacter(13, "青山龍星", "青山龍星がお送りします"))
-        VoiceList.Add(New VoiceCharacter(14, "冥鳴ひまり", "冥鳴ひまりです"))
-        VoiceList.Add(New VoiceCharacter(20, "もち子さん(cv. 明日葉よもぎ)", "もち子です"))
-        VoiceList.Add(New VoiceCharacter(23, "WhiteCUL", "ホワイトカルです"))
-        VoiceList.Add(New VoiceCharacter(24, "WhiteCUL たのしい", "雪さんだよー"))
-        VoiceList.Add(New VoiceCharacter(25, "WhiteCUL かなしい", "ホワイトカルです"))
-        VoiceList.Add(New VoiceCharacter(26, "WhiteCUL ぴえーん", "ホワイトカルです"))
-
 
         Try
             'JSONファイルを読み込む
@@ -251,35 +228,6 @@ Public Class Form1
             MusicLength = SelectMusic.EndingTime
         End If
 
-        If Wo2 IsNot Nothing Then
-            Wo2.Stop()
-            Wo2.Dispose()
-        End If
-
-        If Wo3 IsNot Nothing Then
-            Wo3.Stop()
-            Wo3.Dispose()
-        End If
-
-
-        If SelectMusic.IntroFileName IsNot Nothing Then
-            MusicReader2 = New AudioFileReader(SelectMusic.IntroFileNameFull)
-            Wo2 = New WaveOut
-            Wo2.Init(MusicReader2)
-
-        End If
-
-        If SelectMusic.OutroFileName IsNot Nothing Then
-            MusicReader3 = New AudioFileReader(SelectMusic.OutroFileNameFull)
-            Wo3 = New WaveOut
-            Wo3.Init(MusicReader3)
-
-        End If
-
-
-
-
-
         NUD_StartTime.Value = SelectMusic.StartTime
         NUD_EndingTime.Value = SelectMusic.EndingTime
         NUD_IntroTime.Value = SelectMusic.IntroTime
@@ -311,9 +259,7 @@ Public Class Form1
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         Dim TimeCount As Integer = Int(MusicReader.CurrentTime.TotalSeconds)
 
-
-
-
+        Dim Count As Integer
 
         'イントロトークの時間が来たら喋る
         If TimeCount = SelectMusic.IntroTime Then
@@ -324,6 +270,22 @@ Public Class Form1
                 Exit Sub
             End If
 
+            'ボイスリストが無ければ、なにもしない
+            If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
+                Label10.Text = "ボイスリストが読み込まれていません"
+                Exit Sub
+            End If
+
+            '使用許可があるボイスが居ない場合、なにもしない
+            For Each oVoice As VoiceCharacter In VoiceList
+                Count += CInt(oVoice.Use)
+            Next
+
+            If Count = 0 Then
+                Label10.Text = "ボイスが選択されていません"
+                Exit Sub
+            End If
+
             '選曲中のタイプが音楽ならば
             If SelectMusic.TypeEnum = Music.WaveType.Music Then
 
@@ -331,12 +293,17 @@ Public Class Form1
                 Dim Tx As String 'テロップ表示用
                 Dim Scenario As String 'スピーク用
 
-
-
-
-
                 'DJを選択
-                Dim SelectedVoice As Integer = Rnd.Next(0, VoiceList.Count)
+                Dim SelectedVoice As Integer
+
+                '使用許可があるボイスが出るまで抽選
+                Do
+                    SelectedVoice = Rnd.Next(0, VoiceList.Count)
+
+                    If VoiceList(SelectedVoice).Use Then
+                        Exit Do
+                    End If
+                Loop
 
                 Do
                     '台本を抽選
@@ -365,6 +332,10 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
                     Scenario = Scenario.Replace("[Title]", SelectMusic.TitleSort)
                 End If
 
+                '自己紹介文を登録
+                Scenario = VoiceList(SelectedVoice).MySelf & "。" & Scenario
+
+                'もしトーク文が長過ぎたら、再抽選
                 If SelectMusic.IntroMaxLength > 0 AndAlso Scenario.Length > SelectMusic.IntroMaxLength Then
                     GoTo Scenario1
                 End If
@@ -375,12 +346,9 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
                 Label10.Text = Tx & vbCrLf
                 Label10.Text &= "by. " & VoiceList(SelectedVoice).Name & vbCrLf & "(" & Tx.Length & "文字" & ") (" & SelectMusic.PlayCount + 1 & "回目)"
 
-                Scenario = VoiceList(SelectedVoice).MySelf & "。" & Scenario
+
 
                 ZundamonTalk(Scenario, VoiceList(SelectedVoice).Id)
-
-            ElseIf SelectMusic.IntroFileName IsNot Nothing Then
-                Wo2.Play()
             End If
 
         End If
@@ -394,6 +362,22 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
                 Exit Sub
             End If
 
+            'ボイスリストが無ければ、なにもしない
+            If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
+                Label10.Text = "ボイスリストが読み込まれていません"
+                Exit Sub
+            End If
+
+            '使用許可があるボイスが居ない場合、なにもしない
+            For Each oVoice As VoiceCharacter In VoiceList
+                Count += CInt(oVoice.Use)
+            Next
+
+            If Count = 0 Then
+                Label10.Text = "ボイスが選択されていません"
+                Exit Sub
+            End If
+
             If SelectMusic.TypeEnum = Music.WaveType.Music Then
 
                 Dim oTalk As Talk
@@ -401,7 +385,16 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
                 Dim Scenario As String 'スピーク用
 
                 'DJを選択
-                Dim SelectedVoice As Integer = (Rnd.Next(0, VoiceList.Count))
+                Dim SelectedVoice As Integer
+
+                '使用許可があるボイスが出るまで抽選
+                Do
+                    SelectedVoice = Rnd.Next(0, VoiceList.Count)
+
+                    If VoiceList(SelectedVoice).Use Then
+                        Exit Do
+                    End If
+                Loop
 
                 Do
                     '台本を抽選
@@ -443,18 +436,43 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
             ElseIf SelectMusic.TypeEnum = Music.WaveType.Jingle Then
                 'タイプがジングルならば
 
+                'ボイスリストが無ければ、なにもしない
+                If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
+                    Label10.Text = "ボイスリストが読み込まれていません"
+                    Exit Sub
+                End If
+
+                '使用許可があるボイスが居ない場合、なにもしない
+                For Each oVoice As VoiceCharacter In VoiceList
+                    Count += CInt(oVoice.Use)
+                Next
+
+                If Count = 0 Then
+                    Label10.Text = "ボイスが選択されていません"
+                    Exit Sub
+                End If
+
                 Dim oTalk As Talk
                 Dim Tx As String 'テロップ表示用
                 Dim Scenario As String 'スピーク用
 
                 'DJを選択
-                Dim SelectedVoice As Integer = (Rnd.Next(0, VoiceList.Count))
+                Dim SelectedVoice As Integer
+
+                '使用許可があるボイスが出るまで抽選
+                Do
+                    SelectedVoice = Rnd.Next(0, VoiceList.Count)
+
+                    If VoiceList(SelectedVoice).Use Then
+                        Exit Do
+                    End If
+                Loop
 
                 Do
                     '台本を抽選
                     oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
-                    'アウトロ用ならDoを出る
+                    'コール用ならDoを出る
                     If oTalk.TypeEnum = Talk.TalkType.Call Then
                         Exit Do
                     End If
@@ -464,7 +482,8 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
                 Tx = oTalk.Text
                 Scenario = oTalk.Text
 
-                Label10.Text = Tx
+                Label10.Text = Tx & vbCrLf
+                Label10.Text &= "by. " & VoiceList(SelectedVoice).Name
 
                 ZundamonTalk(Scenario, VoiceList(SelectedVoice).Id)
 
@@ -548,7 +567,7 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
         Try
             '音楽情報ファイルを開く
-            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\List.json")
+            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\Setting\List.json")
             'JSON文字列を一括で読み取る
             str = Reader.ReadToEnd
             'ファイルを閉じる
@@ -567,7 +586,7 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
         Try
             'トークパターンファイルを開く
-            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\TalkList.json")
+            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\Setting\TalkList.json")
             'JSON文字列を一括で読み取る
             str = Reader.ReadToEnd
             'ファイルを閉じる
@@ -580,6 +599,24 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
         Catch ex As System.Text.Json.JsonException
             'JSONの記述ミスがある場合
             MessageBox.Show("トークパターンリストに記述ミスがありそうです" & vbCrLf & vbCrLf & ex.Message, Me.Text, 0, MessageBoxIcon.Error)
+        End Try
+
+
+        Try
+            'ボイスパターンファイルを開く
+            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\Setting\VoiceList.json")
+            'JSON文字列を一括で読み取る
+            str = Reader.ReadToEnd
+            'ファイルを閉じる
+            Reader.Close()
+
+            VoiceList = JsonSerializer.Deserialize(Of List(Of VoiceCharacter))(str)
+
+        Catch ex As FileNotFoundException
+            'ボイスパターンファイルが無い場合、スルーする
+        Catch ex As System.Text.Json.JsonException
+            'JSONの記述ミスがある場合
+            MessageBox.Show("ボイスリストに記述ミスがありそうです" & vbCrLf & vbCrLf & ex.Message, Me.Text, 0, MessageBoxIcon.Error)
         End Try
 
         Label10.Text = "ロード完了"
@@ -643,11 +680,27 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
         Dim jsonString As String = JsonSerializer.Serialize(MusicList, options)
 
-        Dim Writer As New IO.StreamWriter(My.Application.Info.DirectoryPath & "\List.json")
+        Dim Writer As New IO.StreamWriter(My.Application.Info.DirectoryPath & "\Setting\List.json")
 
         'JSONに書きこむ
         Writer.Write(jsonString)
         Writer.Close()
+
+
+
+        'キャラクター情報を保存する
+        If VoiceList IsNot Nothing AndAlso VoiceList.Count > 0 Then
+
+            Dim di As IO.DirectoryInfo = IO.Directory.CreateDirectory(My.Application.Info.DirectoryPath & "\Setting")
+
+            jsonString = JsonSerializer.Serialize(VoiceList, options)
+
+            Writer = New IO.StreamWriter(My.Application.Info.DirectoryPath & "\Setting\VoiceList.json")
+
+            Writer.Write(jsonString)
+            Writer.Close()
+
+        End If
 
     End Sub
 
@@ -928,7 +981,14 @@ L1:     Next
 
     End Sub
 
+    Private Sub VoiceToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VoiceToolStripMenuItem.Click
 
+        Dim F As New Form3
+
+        'サブフォームを起動
+        F.ShowDialog(Me, VoiceList)
+
+    End Sub
 End Class
 
 
