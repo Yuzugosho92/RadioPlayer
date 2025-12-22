@@ -838,9 +838,12 @@ L1:     Next
             Exit Sub
         End If
 
-        'トークを止める
-        player.Stop()
-        player.Dispose()
+        'トークプレイヤーがある場合
+        If player IsNot Nothing Then
+            'トークを止める
+            player.Stop()
+            player.Dispose()
+        End If
 
         '再生位置をラスト15秒前まで飛ばす
         MusicSkip(MusicLength - 15)
