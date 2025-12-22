@@ -1,4 +1,6 @@
 ﻿Imports System.Text.Json.Serialization
+Imports System.Text.RegularExpressions
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 Public Class MusicList
     Inherits List(Of Music)
@@ -228,6 +230,14 @@ End Class
 
 Public Class Talk
 
+    Sub New()
+        ReDim FeelingTime(23)
+
+        For i As Integer = 0 To 23
+            FeelingTime(i) = True
+        Next
+    End Sub
+
     'タイプ
     Private _type As TalkType
     Public Property Type As String
@@ -260,7 +270,43 @@ Public Class Talk
     End Enum
 
     '雰囲気・時間帯
+    Private _Feeling As String
     Public Property Feeling As String
+        Get
+            Return _Feeling
+        End Get
+        Set(value As String)
+            _Feeling = value
+
+            '時間帯指定があれば
+            If Regex.IsMatch(_Feeling, "[0-9]*-[0-9]*") Then
+                '文字列を分割
+                Dim str As String() = _Feeling.Split("-")
+                '開始・終了時間を設定
+                Dim Start As Integer = CInt(str(0))
+                Dim Final As Integer = CInt(str(1))
+
+                If Start > Final Then
+                    '非対応の各時間にFalseを登録
+                    For i As Integer = Final To Start - 1
+                        FeelingTime(i) = False
+                    Next
+                Else
+                    '0時をまたぐ場合
+                    For i As Integer = Final To 23
+                        FeelingTime(i) = False
+                    Next
+
+                    For i As Integer = 0 To Start - 1
+                        FeelingTime(i) = False
+                    Next
+                End If
+            End If
+        End Set
+    End Property
+
+    <JsonIgnore>
+    Public Property FeelingTime As Boolean()
 
     '台本
     Public Property Text As String

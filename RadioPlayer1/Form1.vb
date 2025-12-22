@@ -309,9 +309,13 @@ Scenario1:      Dim SelectedVoice As Integer
                     '台本を抽選
                     oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
-                    'イントロ用ならDoを出る
+                    'イントロ用なら
                     If oTalk.TypeEnum = Talk.TalkType.Intro Then
-                        Exit Do
+
+                        '時間が対応していたら、Doを出る
+                        If oTalk.FeelingTime(Now.Hour) Then
+                            Exit Do
+                        End If
                     End If
                 Loop
 
@@ -402,7 +406,10 @@ Scenario1:      Dim SelectedVoice As Integer
 
                     'アウトロ用ならDoを出る
                     If oTalk.TypeEnum = Talk.TalkType.Outro Then
-                        Exit Do
+                        '時間が対応していたら、Doを出る
+                        If oTalk.FeelingTime(Now.Hour) Then
+                            Exit Do
+                        End If
                     End If
                 Loop
 
