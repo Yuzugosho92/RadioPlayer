@@ -65,6 +65,7 @@ Partial Class Form2
         ' 
         ' GroupBox2
         ' 
+        GroupBox2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
         GroupBox2.Controls.Add(txb_ArtistSort)
         GroupBox2.Controls.Add(txb_Artist)
         GroupBox2.Controls.Add(txb_TitleSort)

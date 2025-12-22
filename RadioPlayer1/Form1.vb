@@ -50,10 +50,10 @@ Public Class Form1
 
             'リストビューに音楽を登録
             For i As Integer = 0 To MusicList.Count - 1
-                ListView1.Items.Add(MusicList(i).Title)
-                ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(MusicList(i).Artist)
-                ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(MusicList(i).Type)
-                ListView1.Items(ListView1.Items.Count - 1).Tag = MusicList(i)
+                Dim oListViewItem As ListViewItem = ListView1.Items.Add(MusicList(i).Title)
+                oListViewItem.SubItems.Add(MusicList(i).Artist)
+                oListViewItem.SubItems.Add(MusicList(i).Type)
+                oListViewItem.Tag = MusicList(i)
             Next
 
             'リストビューのカラムサイズを調整
@@ -294,7 +294,7 @@ Public Class Form1
                 Dim Scenario As String 'スピーク用
 
                 'DJを選択
-                Dim SelectedVoice As Integer
+Scenario1:      Dim SelectedVoice As Integer
 
                 '使用許可があるボイスが出るまで抽選
                 Do
@@ -307,7 +307,7 @@ Public Class Form1
 
                 Do
                     '台本を抽選
-Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
+                    oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
                     'イントロ用ならDoを出る
                     If oTalk.TypeEnum = Talk.TalkType.Intro Then
@@ -772,11 +772,11 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
 
 
                     'リストビューに追加
-                    ListView1.Items.Add(oMusic.Title)
-                    ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(oMusic.Artist)
-                    ListView1.Items(ListView1.Items.Count - 1).SubItems.Add(oMusic.Type)
-                    ListView1.Items(ListView1.Items.Count - 1).Tag = oMusic
+                    Dim oListViewItem As ListViewItem = ListView1.Items.Add(oMusic.Title)
 
+                    oListViewItem.SubItems.Add(oMusic.Artist)
+                    oListViewItem.SubItems.Add(oMusic.Type)
+                    oListViewItem.Tag = oMusic
 
                     SelectMusic = oMusic
                     InNewMusic = True
@@ -827,6 +827,10 @@ L1:     Next
 
         NUD_EndingTime.Value = SelectMusic.EndingTime
 
+        'フルコーラス再生でない場合、曲の長さを設定
+        If CheckBox1.Checked = False AndAlso SelectMusic.EndingTime > 0 Then
+            MusicLength = SelectMusic.EndingTime
+        End If
 
     End Sub
 
