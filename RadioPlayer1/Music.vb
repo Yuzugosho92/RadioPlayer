@@ -163,8 +163,6 @@ Public Class Music
     Public Property PlayCount As Integer
 
 
-
-
     '自分自身がotherより小さいときはマイナスの数、大きいときはプラスの数、
     '同じときは0を返す
     Public Function CompareTo(ByVal other As Music) As Integer Implements System.IComparable(Of Music).CompareTo
@@ -174,27 +172,54 @@ Public Class Music
             Return 1
         End If
 
+        'タイトルが同じ場合
         If Me.Title = other.Title Then
-
-            If Me.ArtistSort IsNot Nothing AndAlso other.ArtistSort IsNot Nothing Then
-                Return Me.ArtistSort.CompareTo(other.ArtistSort)
+            'アーティストを比較する
+            'このTitleSortが無い場合
+            If Me.ArtistSort Is Nothing OrElse Me.ArtistSort = "" Then
+                '相手のArtistSortも無い場合
+                If other.ArtistSort Is Nothing OrElse other.ArtistSort = "" Then
+                    'Artist同士を比較する
+                    Return Me.Artist.CompareTo(other.Artist)
+                Else
+                    'ArtistとArtistSortを比較する
+                    Return Me.Artist.CompareTo(other.ArtistSort)
+                End If
             Else
-                Return Me.Artist.CompareTo(other.Artist)
+                '相手のArtistSortが無い場合
+                If other.ArtistSort Is Nothing OrElse other.ArtistSort = "" Then
+                    'ArtistSortとArtistを比較する
+                    Return Me.ArtistSort.CompareTo(other.Artist)
+                Else
+                    'ArtistSort同士を比較する
+                    Return Me.ArtistSort.CompareTo(other.ArtistSort)
+                End If
             End If
-
-        ElseIf Me.TitleSort IsNot Nothing AndAlso other.TitleSort IsNot Nothing Then
-            Return Me.TitleSort.CompareTo(other.TitleSort)
         Else
-            Return Me.Title.CompareTo(other.Title)
+            'タイトルを比較する
+            'このTitleSortが無い場合
+            If Me.TitleSort Is Nothing OrElse Me.TitleSort = "" Then
+                '相手のTitleSortも無い場合
+                If other.TitleSort Is Nothing OrElse other.TitleSort = "" Then
+                    'Title同士を比較する
+                    Return Me.Title.CompareTo(other.Title)
+                Else
+                    'TitleとTitleSortを比較する
+                    Return Me.Title.CompareTo(other.TitleSort)
+                End If
+            Else
+                '相手のTitleSortが無い場合
+                If other.TitleSort Is Nothing OrElse other.TitleSort = "" Then
+                    'TitleSortとTitleを比較する
+                    Return Me.TitleSort.CompareTo(other.Title)
+                Else
+                    'TitleSort同士を比較する
+                    Return Me.TitleSort.CompareTo(other.TitleSort)
+                End If
+            End If
         End If
 
     End Function
-
-
-
-
-
-
 
 End Class
 
