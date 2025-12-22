@@ -101,6 +101,13 @@ Public Class Form1
             Button1.Text = "再開"
             Wo.Stop()
         Else
+
+            If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
+                MusicLength = MusicReader.TotalTime.TotalSeconds
+            Else
+                MusicLength = SelectMusic.EndingTime
+            End If
+
             Button1.Text = "一時停止"
             Wo.Play()
         End If
@@ -236,11 +243,12 @@ Public Class Form1
 
 
 
-        If SelectMusic.EndingTime > 0 Then
+        '曲の終了位置を設定
+        If SelectMusic.EndingTime = 0 OrElse CheckBox1.Checked Then
+            MusicLength = MusicReader.TotalTime.TotalSeconds
+        Else
             OffsetSample.Take = TimeSpan.FromSeconds(SelectMusic.EndingTime)
             MusicLength = SelectMusic.EndingTime
-        Else
-            MusicLength = MusicReader.TotalTime.TotalSeconds
         End If
 
         If Wo2 IsNot Nothing Then
@@ -294,11 +302,6 @@ Public Class Form1
 
 
     End Sub
-
-
-
-
-
 
 
 
@@ -469,6 +472,9 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
             End If
 
         End If
+
+
+
 
 
 
@@ -646,14 +652,8 @@ Scenario1:          oTalk = TalkList(Rnd.Next(0, TalkList.Count))
     End Sub
 
 
-
-
-
     Private Sub Label2_DragEnter(sender As Object, e As DragEventArgs) Handles Label2.DragEnter
-
-
         e.Effect = DragDropEffects.Copy
-
     End Sub
 
 
@@ -737,14 +737,10 @@ L1:     Next
             MusicChange(SelectMusic)
         End If
 
-
-
-
-
     End Sub
 
+    'タイミング調整の値を変更する
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
-
 
         SelectMusic.StartTime = CInt(NUD_StartTime.Value)
         SelectMusic.EndingTime = CInt(NUD_EndingTime.Value)
@@ -752,7 +748,11 @@ L1:     Next
         SelectMusic.OutroTime = CInt(NUD_OutroTime.Value)
         SelectMusic.IntroMaxLength = CInt(NUD_IntroMaxLength.Value)
 
-        MusicLength = CInt(NUD_EndingTime.Value)
+        If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
+            MusicLength = MusicReader.TotalTime.TotalSeconds
+        Else
+            MusicLength = CInt(NUD_EndingTime.Value)
+        End If
 
     End Sub
 
@@ -775,10 +775,42 @@ L1:     Next
 
     End Sub
 
+    '再生位置をラスト15秒前まで飛ばす
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
-        MusicReader.CurrentTime = TimeSpan.FromSeconds(SelectMusic.EndingTime - 15)
+
+        '曲が再生していない場合、なにもしない
+        If Wo Is Nothing OrElse Wo.PlaybackState <> PlaybackState.Playing Then
+            Exit Sub
+        End If
+
+        'トークを止める
+        player.Stop()
+        player.Dispose()
+
+        '再生位置をラスト15秒前まで飛ばす
+        MusicSkip(MusicLength - 15)
     End Sub
 
+
+    '再生位置を動かすメソッド
+    Public Sub MusicSkip(Time As Integer)
+        '再生位置を指定
+        MusicReader.CurrentTime = TimeSpan.FromSeconds(Time)
+    End Sub
+
+
+    Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
+
+        If Wo Is Nothing OrElse Not Wo.PlaybackState = PlaybackState.Playing Then
+            Exit Sub
+        End If
+
+        If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
+            MusicLength = MusicReader.TotalTime.TotalSeconds
+        Else
+            MusicLength = SelectMusic.EndingTime
+        End If
+    End Sub
 
 
     '音量バー
@@ -895,6 +927,8 @@ L1:     Next
         End If
 
     End Sub
+
+
 End Class
 
 

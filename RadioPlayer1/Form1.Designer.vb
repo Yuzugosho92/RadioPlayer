@@ -59,6 +59,7 @@ Partial Class Form1
         MenuStrip1 = New MenuStrip()
         ToolStripMenuItem1 = New ToolStripMenuItem()
         ToolStripMenuItem3 = New ToolStripMenuItem()
+        CheckBox1 = New CheckBox()
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_IntroTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -191,7 +192,7 @@ Partial Class Form1
         ' 
         ' Button6
         ' 
-        Button6.Location = New Point(205, 128)
+        Button6.Location = New Point(270, 128)
         Button6.Name = "Button6"
         Button6.Size = New Size(71, 34)
         Button6.TabIndex = 2
@@ -200,7 +201,7 @@ Partial Class Form1
         ' 
         ' Button7
         ' 
-        Button7.Location = New Point(128, 128)
+        Button7.Location = New Point(193, 128)
         Button7.Name = "Button7"
         Button7.Size = New Size(71, 34)
         Button7.TabIndex = 1
@@ -218,7 +219,7 @@ Partial Class Form1
         ' 
         ' Button9
         ' 
-        Button9.Location = New Point(282, 128)
+        Button9.Location = New Point(347, 129)
         Button9.Name = "Button9"
         Button9.Size = New Size(70, 34)
         Button9.TabIndex = 3
@@ -377,11 +378,23 @@ Partial Class Form1
         ToolStripMenuItem3.Size = New Size(239, 34)
         ToolStripMenuItem3.Text = "ゲイン再読み込み"
         ' 
+        ' CheckBox1
+        ' 
+        CheckBox1.Appearance = Appearance.Button
+        CheckBox1.AutoSize = True
+        CheckBox1.Location = New Point(128, 128)
+        CheckBox1.Name = "CheckBox1"
+        CheckBox1.Size = New Size(59, 35)
+        CheckBox1.TabIndex = 35
+        CheckBox1.Text = "FULL"
+        CheckBox1.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(921, 756)
+        Controls.Add(CheckBox1)
         Controls.Add(ListView1)
         Controls.Add(Label10)
         Controls.Add(GroupBox1)
@@ -446,5 +459,6 @@ Partial Class Form1
     Friend WithEvents EditToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem2 As ToolStripSeparator
     Friend WithEvents DelToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents CheckBox1 As CheckBox
 
 End Class
