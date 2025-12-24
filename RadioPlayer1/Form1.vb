@@ -403,6 +403,8 @@ Scenario1:      Dim SelectedVoice As Integer
                 Exit Sub
             End If
 
+
+
             If SelectMusic.TypeEnum = Music.WaveType.Music Then
 
                 Dim oTalk As Talk
@@ -457,9 +459,9 @@ Scenario1:      Dim SelectedVoice As Integer
                 Label10.Text = Tx & vbCrLf
                 Label10.Text &= "by. " & VoiceList(SelectedVoice).Name & vbCrLf & "(" & Tx.Length & "文字" & ") (" & SelectMusic.PlayCount + 1 & "回目)"
 
-                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
-
                 OnTalk = True
+
+                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
 
             ElseIf SelectMusic.TypeEnum = Music.WaveType.Jingle Then
                 'タイプがジングルならば
@@ -576,7 +578,7 @@ Scenario1:      Dim SelectedVoice As Integer
                 Case Music.WaveType.Jingle
 
 
-                    If TimeWhenTraffic.AddMinutes(30) < Now Then
+                    If TimeWhenTraffic.AddMinutes(5) < Now Then
 
                         '交通情報を流す
                         TrafficInfo()
@@ -1110,6 +1112,19 @@ L1:     Next
 
 
     Private Async Sub TrafficInfo()
+        '次の曲を選曲
+        Do
+            Dim i As Integer
+
+            '次の曲を選ぶ乱数を設定
+            i = Rnd.Next(0, MusicList.Count)
+
+            If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
+                MusicChange(MusicList(i))
+                Exit Do
+            End If
+
+        Loop
 
         Dim Tx As New List(Of String)
 
@@ -1132,45 +1147,23 @@ L1:     Next
         Vc.Add(2)
 
 
-        Dim Bt As New List(Of Byte())
+        Dim Bt As New Dictionary(Of Integer, Byte())
 
 
-        Dim t0 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(0), Vc(0)))
-        Dim t1 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(1), Vc(1)))
+
+        Bt.Add(0, Await VoicevoxCreate(Tx(0), Vc(0)))
 
 
-        Dim t2 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(2), Vc(2)))
-        Dim t3 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(3), Vc(3)))
+        Parallel.For(1, 7, Async Sub(i)
 
-        Dim t4 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(4), Vc(4)))
-        Dim t5 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(5), Vc(5)))
 
-        Dim t6 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(6), Vc(6)))
+                               Dim oBt As Byte() = Await VoicevoxCreate(Tx(i), Vc(i))
 
-        '次の曲を選曲
+                               Bt.Add(i, oBt)
 
-        Do
-            Dim i As Integer
 
-            '次の曲を選ぶ乱数を設定
-            i = Rnd.Next(0, MusicList.Count)
+                           End Sub)
 
-            If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
-                MusicChange(MusicList(i))
-                Exit Do
-            End If
-
-        Loop
-
-        Task.WaitAll(t0)
-
-        Bt.Add(t0.Result)
-        Bt.Add(t1.Result)
-        Bt.Add(t2.Result)
-        Bt.Add(t3.Result)
-        Bt.Add(t4.Result)
-        Bt.Add(t5.Result)
-        Bt.Add(t6.Result)
 
         For i As Integer = 0 To 6
             Label10.Text = Tx(i)
@@ -1181,7 +1174,9 @@ L1:     Next
         '今の時刻を記録する
         TimeWhenTraffic = Now
 
-        GenreCount = 1
+        GenreCount = 0
+        OnTalk = False
+
 
         '音量をフェードアウトする
         BackgroundWorker1.RunWorkerAsync()
