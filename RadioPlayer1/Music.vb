@@ -344,4 +344,10 @@ Public Class VoiceCharacter
     Public Property TrafficMcUse As Boolean = True
     Public Property TrafficCenterUse As Boolean = True
 
+    Public Enum TalkType
+        Mc
+        TrafficMc
+        TrafficCenter
+    End Enum
+
 End Class

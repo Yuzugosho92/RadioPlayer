@@ -1071,17 +1071,6 @@ L1:     Next
 
     End Sub
 
-    Private Sub VoiceToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VoiceToolStripMenuItem.Click
-
-        Dim F As New Form3
-
-        'サブフォームを起動
-        F.ShowDialog(Me, VoiceList)
-
-    End Sub
-
-
-
 
     Private Async Sub TrafficInfo()
 

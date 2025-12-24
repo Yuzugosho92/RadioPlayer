@@ -1,16 +1,27 @@
 ﻿Public Class Form3
 
     Dim VoiceList As List(Of VoiceCharacter)
+    Dim Type As VoiceCharacter.TalkType
 
-    Public Overloads Function ShowDialog(Owner As IWin32Window, ByRef VoiceList As List(Of VoiceCharacter))
+    Public Overloads Function ShowDialog(Owner As IWin32Window, ByRef VoiceList As List(Of VoiceCharacter), Type As VoiceCharacter.TalkType)
 
         Me.VoiceList = VoiceList
+        Me.Type = Type
 
         'リストビューにボイスを登録
         For i As Integer = 0 To VoiceList.Count - 1
-            ListView1.Items.Add(VoiceList(i).Name)
-            ListView1.Items(ListView1.Items.Count - 1).Checked = VoiceList(i).Use
-            ListView1.Items(ListView1.Items.Count - 1).Tag = VoiceList(i)
+
+            Dim oListViewItem As ListViewItem = ListView1.Items.Add(VoiceList(i).Name)
+            oListViewItem.Tag = VoiceList(i)
+
+            Select Case Type
+                Case VoiceCharacter.TalkType.Mc
+                    oListViewItem.Checked = VoiceList(i).Use
+                Case VoiceCharacter.TalkType.TrafficMc
+                    oListViewItem.Checked = VoiceList(i).TrafficMcUse
+                Case VoiceCharacter.TalkType.TrafficCenter
+                    oListViewItem.Checked = VoiceList(i).TrafficCenterUse
+            End Select
         Next
 
         'リストビューのカラムサイズを調整
@@ -37,7 +48,16 @@
     Private Sub btn_OK_Click(sender As Object, e As EventArgs) Handles btn_OK.Click
 
         For i As Integer = 0 To ListView1.Items.Count - 1
-            VoiceList(i).Use = ListView1.Items(i).Checked
+
+            Select Case Type
+                Case VoiceCharacter.TalkType.Mc
+                    VoiceList(i).Use = ListView1.Items(i).Checked
+                Case VoiceCharacter.TalkType.TrafficMc
+                    VoiceList(i).TrafficMcUse = ListView1.Items(i).Checked
+                Case VoiceCharacter.TalkType.TrafficCenter
+                    VoiceList(i).TrafficCenterUse = ListView1.Items(i).Checked
+            End Select
+
         Next
 
         'フォームを閉じる

@@ -70,6 +70,20 @@ Public Class Form4
         Me.Close()
     End Sub
 
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        'サブフォームを起動
+        Dim F As New Form3
+        F.ShowDialog(Owner, DirectCast(Owner, Form1).VoiceList, VoiceCharacter.TalkType.Mc)
+    End Sub
 
-
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        'サブフォームを起動
+        Dim F As New Form3
+        F.ShowDialog(Owner, DirectCast(Owner, Form1).VoiceList, VoiceCharacter.TalkType.TrafficMc)
+    End Sub
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        'サブフォームを起動
+        Dim F As New Form3
+        F.ShowDialog(Owner, DirectCast(Owner, Form1).VoiceList, VoiceCharacter.TalkType.TrafficCenter)
+    End Sub
 End Class

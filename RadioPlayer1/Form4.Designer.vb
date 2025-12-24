@@ -27,6 +27,7 @@ Partial Class Form4
         Button1 = New Button()
         ckb_MySelf = New CheckBox()
         GroupBox2 = New GroupBox()
+        Label4 = New Label()
         Label1 = New Label()
         NumericUpDown1 = New NumericUpDown()
         Button3 = New Button()
@@ -35,13 +36,12 @@ Partial Class Form4
         btn_Cancel = New Button()
         btn_OK = New Button()
         GroupBox3 = New GroupBox()
+        Label5 = New Label()
         Label3 = New Label()
         NumericUpDown2 = New NumericUpDown()
         GroupBox4 = New GroupBox()
         Label2 = New Label()
         txb_RadioName = New TextBox()
-        Label4 = New Label()
-        Label5 = New Label()
         GroupBox1.SuspendLayout()
         GroupBox2.SuspendLayout()
         CType(NumericUpDown1, ComponentModel.ISupportInitialize).BeginInit()
@@ -106,6 +106,15 @@ Partial Class Form4
         GroupBox2.TabStop = False
         GroupBox2.Text = "交通情報"
         ' 
+        ' Label4
+        ' 
+        Label4.AutoSize = True
+        Label4.Location = New Point(162, 147)
+        Label4.Name = "Label4"
+        Label4.Size = New Size(30, 25)
+        Label4.TabIndex = 5
+        Label4.Text = "分"
+        ' 
         ' Label1
         ' 
         Label1.AutoSize = True
@@ -128,18 +137,18 @@ Partial Class Form4
         ' 
         Button3.Location = New Point(6, 105)
         Button3.Name = "Button3"
-        Button3.Size = New Size(112, 34)
+        Button3.Size = New Size(165, 34)
         Button3.TabIndex = 2
-        Button3.Text = "Button3"
+        Button3.Text = "ボイス選択(センター)"
         Button3.UseVisualStyleBackColor = True
         ' 
         ' Button2
         ' 
         Button2.Location = New Point(6, 65)
         Button2.Name = "Button2"
-        Button2.Size = New Size(112, 34)
+        Button2.Size = New Size(165, 34)
         Button2.TabIndex = 1
-        Button2.Text = "Button2"
+        Button2.Text = "ボイス選択(MC)"
         Button2.UseVisualStyleBackColor = True
         ' 
         ' ckb_Traffic
@@ -186,6 +195,15 @@ Partial Class Form4
         GroupBox3.TabStop = False
         GroupBox3.Text = "ジングル"
         ' 
+        ' Label5
+        ' 
+        Label5.AutoSize = True
+        Label5.Location = New Point(156, 27)
+        Label5.Name = "Label5"
+        Label5.Size = New Size(72, 25)
+        Label5.TabIndex = 7
+        Label5.Text = "曲に1回"
+        ' 
         ' Label3
         ' 
         Label3.AutoSize = True
@@ -231,24 +249,6 @@ Partial Class Form4
         txb_RadioName.Size = New Size(155, 31)
         txb_RadioName.TabIndex = 5
         txb_RadioName.Text = "ボイボ寮ラジオ"
-        ' 
-        ' Label4
-        ' 
-        Label4.AutoSize = True
-        Label4.Location = New Point(162, 147)
-        Label4.Name = "Label4"
-        Label4.Size = New Size(30, 25)
-        Label4.TabIndex = 5
-        Label4.Text = "分"
-        ' 
-        ' Label5
-        ' 
-        Label5.AutoSize = True
-        Label5.Location = New Point(156, 27)
-        Label5.Name = "Label5"
-        Label5.Size = New Size(72, 25)
-        Label5.TabIndex = 7
-        Label5.Text = "曲に1回"
         ' 
         ' Form4
         ' 
