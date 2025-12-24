@@ -22,13 +22,16 @@ Imports System.Drawing.Text
 Imports System.Diagnostics.CodeAnalysis
 Imports System.Windows
 Imports System.Threading
+Imports System.Windows.Forms.VisualStyles
+Imports System.Configuration
+Imports NAudio
 
 Public Class Form1
 
     Dim MusicReader As AudioFileReader
     Dim OffsetSample As OffsetSampleProvider
     Dim volumeProvider As VolumeSampleProvider
-    Dim Wo As WaveOut
+    Dim Wo, Wo2 As WaveOut
 
     Dim MusicList As New MusicList
     Dim TalkList As New List(Of Talk)
@@ -40,6 +43,8 @@ Public Class Form1
     Dim OnTalk As Boolean
 
     Dim VoiceList As New List(Of VoiceCharacter)
+
+    Dim TimeWhenTraffic As Date
 
     'フォームスタート
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -77,6 +82,11 @@ Public Class Form1
         ElseIf Wo.PlaybackState = PlaybackState.Playing Then
             Button1.Text = "再開"
             Wo.Stop()
+
+            If Wo2 IsNot Nothing Then
+                Wo2.Stop()
+            End If
+
         Else
 
             If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
@@ -87,6 +97,10 @@ Public Class Form1
 
             Button1.Text = "一時停止"
             Wo.Play()
+
+            If Wo2 IsNot Nothing Then
+                Wo2.Play()
+            End If
         End If
 
     End Sub
@@ -109,6 +123,8 @@ Public Class Form1
 
             '前曲がNothingか、同じ曲では無い場合
             If SelectMusic Is Nothing OrElse Not MusicList(i).FileName = SelectMusic.FileName Then
+                IsExiter = True
+            ElseIf MusicList.Count = 1 Then
                 IsExiter = True
             End If
 
@@ -256,10 +272,14 @@ Public Class Form1
 
 
     '監視タイマー
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+    Private Async Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         Dim TimeCount As Integer = Int(MusicReader.CurrentTime.TotalSeconds)
 
         Dim Count As Integer
+
+        If Wo Is Nothing OrElse Wo.PlaybackState = PlaybackState.Paused Then
+            Exit Sub
+        End If
 
         'イントロトークの時間が来たら喋る
         If TimeCount = SelectMusic.IntroTime Then
@@ -352,7 +372,7 @@ Scenario1:      Dim SelectedVoice As Integer
 
 
 
-                ZundamonTalk(Scenario, VoiceList(SelectedVoice).Id)
+                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
             End If
 
         End If
@@ -436,7 +456,7 @@ Scenario1:      Dim SelectedVoice As Integer
                 Label10.Text = Tx & vbCrLf
                 Label10.Text &= "by. " & VoiceList(SelectedVoice).Name & vbCrLf & "(" & Tx.Length & "文字" & ") (" & SelectMusic.PlayCount + 1 & "回目)"
 
-                ZundamonTalk(Scenario, VoiceList(SelectedVoice).Id)
+                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
 
                 OnTalk = True
 
@@ -492,7 +512,7 @@ Scenario1:      Dim SelectedVoice As Integer
                 Label10.Text = Tx & vbCrLf
                 Label10.Text &= "by. " & VoiceList(SelectedVoice).Name
 
-                ZundamonTalk(Scenario, VoiceList(SelectedVoice).Id)
+                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
 
                 OnTalk = True
             End If
@@ -548,7 +568,51 @@ Scenario1:      Dim SelectedVoice As Integer
     End Sub
 
     Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
-        MusicChange()
+
+
+        If SelectMusic IsNot Nothing AndAlso MusicList.ExistsType(Music.WaveType.Traffic) AndAlso TrafficToolStripMenuItem.Checked Then
+            Select Case SelectMusic.TypeEnum
+                Case Music.WaveType.Jingle
+
+
+                    If TimeWhenTraffic.AddMinutes(30) < Now Then
+
+                        '交通情報を流す
+                        TrafficInfo()
+
+                    Else
+
+                        '次の曲へ
+                        MusicChange()
+                    End If
+
+
+
+
+
+
+
+                Case Else
+
+                    '次の曲へ
+                    MusicChange()
+
+
+
+            End Select
+
+        Else
+            '次の曲へ
+            MusicChange()
+
+        End If
+
+
+
+
+
+
+
     End Sub
 
 
@@ -633,34 +697,69 @@ Scenario1:      Dim SelectedVoice As Integer
 
 
 
-    Dim player As System.Media.SoundPlayer
+
 
     '文字列をVOICEVOXに喋らせる
     'https://github.com/TORISOUP/VoicevoxClientSharp
-    Private Async Sub ZundamonTalk(Str As String, Voice As Integer)
-        Dim synthesizer = New VoicevoxSynthesizer()
 
-        ' styleId = (Await synthesizer.FindStyleIdByNameAsync("四国めたん", "あまあま")).Value
+
+    Private Async Function VoicevoxTalk(Str As String, Voice As Integer, OnFull As Boolean) As Task
+
+        Dim bt As Byte() = Await VoicevoxCreate(Str, Voice)
+
+        Await ByteArrayPlay（bt, OnFull)
+    End Function
+
+
+
+
+
+    'VOICEVOXで文字列からwavバイト配列を生成
+    Private Async Function VoicevoxCreate(Str As String, Voice As Integer) As Task(Of Byte())
+        Dim synthesizer = New VoicevoxSynthesizer()
 
         Try
             Await synthesizer.InitializeStyleAsync(Voice)
 
             Dim result = Await synthesizer.SynthesizeSpeechAsync(Voice, Str,,,, 1.5)
 
-            'オーディオリソースを取り出す
-            Dim strm As System.IO.Stream = New IO.MemoryStream(result.Wav)
-            '同期再生する
-            player = New System.Media.SoundPlayer(strm)
-            player.Play()
-            '後始末
-            player.Dispose()
+            'バイト配列を取り出す
+            Return result.Wav
 
         Catch ex As Net.Http.HttpRequestException
             Label10.Text = "VOICEVOX本体が起動していません"
+
+            Return Nothing
         End Try
+    End Function
 
 
-    End Sub
+
+
+
+    'Wavバイト配列を再生する
+    Private Async Function ByteArrayPlay(bt As Byte(), OnFull As Boolean) As Task
+
+        Dim Reader As New WaveFileReader(New MemoryStream(bt))
+
+        'プレイヤーを召喚
+        Wo2 = New WaveOut
+
+        Wo2.Init(Reader)
+        Wo2.Play()
+
+        If OnFull Then
+            While Wo2.PlaybackState = PlaybackState.Playing
+                Await Task.Delay(100)
+            End While
+        End If
+
+    End Function
+
+
+
+
+
 
 
 
@@ -850,10 +949,8 @@ L1:     Next
         End If
 
         'トークプレイヤーがある場合
-        If player IsNot Nothing Then
-            'トークを止める
-            player.Stop()
-            player.Dispose()
+        If Wo2 IsNot Nothing Then
+            Wo2.Stop()
         End If
 
         '再生位置をラスト15秒前まで飛ばす
@@ -923,9 +1020,9 @@ L1:     Next
 
     Private Sub PlayToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PlayToolStripMenuItem.Click
 
-        If player IsNot Nothing Then
-            player.Stop()
-            player.Dispose()
+        'トークプレイヤーがある場合
+        If Wo2 IsNot Nothing Then
+            Wo2.Stop()
         End If
 
 
@@ -971,9 +1068,9 @@ L1:     Next
 
     Private Sub DelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DelToolStripMenuItem.Click
 
-        If player IsNot Nothing Then
-            player.Stop()
-            player.Dispose()
+        'トークプレイヤーがある場合
+        If Wo2 IsNot Nothing Then
+            Wo2.Stop()
         End If
 
         If Wo IsNot Nothing Then
@@ -1004,6 +1101,74 @@ L1:     Next
         'サブフォームを起動
         F.ShowDialog(Me, VoiceList)
 
+    End Sub
+
+
+
+
+    Private Async Sub TrafficInfo()
+
+
+        '次の曲を選曲
+
+        Do
+            Dim i As Integer
+
+            '次の曲を選ぶ乱数を設定
+            i = Rnd.Next(0, MusicList.Count)
+
+            If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
+                MusicChange(MusicList(i))
+                Exit Do
+            End If
+
+        Loop
+
+
+
+
+
+
+
+
+        Dim Tx As New List(Of String)
+
+        Tx.Add("時刻は" & Now.ToString("h時m分") & "になりました。ここでボイボ寮ラジオ 交通情報です。道路交通情報センターの セブンさんどうぞ")
+        Tx.Add("はい、首都高速は都心環状線内回り、霞が関を先頭に1キロ、渋滞しています")
+        Tx.Add("道路交通情報センターの セブンでした")
+        Tx.Add("ありがとうございました。次の交通情報は、" & Now.AddMinutes(30).ToString("h時m分") & "頃お伝えいたします")
+
+        Dim Vc As New List(Of Integer)
+
+        Vc.Add(2)
+        Vc.Add(30)
+        Vc.Add(30)
+        Vc.Add(2)
+
+
+        Dim Bt As New List(Of Byte())
+
+
+        For i As Integer = 0 To Tx.Count - 1
+            Bt.Add(Await VoicevoxCreate(Tx(i), Vc(i)))
+        Next
+
+        For Each oBt As Byte() In Bt
+            Await ByteArrayPlay(oBt, True)
+        Next
+
+        '今の時刻を記録する
+        TimeWhenTraffic = Now
+
+        GenreCount = 1
+
+        '音量をフェードアウトする
+        BackgroundWorker1.RunWorkerAsync()
+
+    End Sub
+
+    Private Sub TrafficToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TrafficToolStripMenuItem.Click
+        TrafficToolStripMenuItem.Checked = Not TrafficToolStripMenuItem.Checked
     End Sub
 End Class
 

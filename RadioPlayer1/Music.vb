@@ -1,6 +1,7 @@
 ﻿Imports System.Text.Json.Serialization
 Imports System.Text.RegularExpressions
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
+Imports RadioPlayer1.Talk
 
 Public Class MusicList
     Inherits List(Of Music)
@@ -40,6 +41,8 @@ Public Class Music
                     _type = WaveType.Commercial
                 Case "jingle"
                     _type = WaveType.Jingle
+                Case "traffic"
+                    _type = WaveType.Traffic
             End Select
         End Set
     End Property
@@ -55,6 +58,7 @@ Public Class Music
         Music
         Commercial
         Jingle
+        Traffic
     End Enum
 
 

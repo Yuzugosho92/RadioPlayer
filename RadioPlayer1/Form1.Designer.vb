@@ -60,6 +60,7 @@ Partial Class Form1
         ToolStripMenuItem1 = New ToolStripMenuItem()
         ToolStripMenuItem3 = New ToolStripMenuItem()
         VoiceToolStripMenuItem = New ToolStripMenuItem()
+        TrafficToolStripMenuItem = New ToolStripMenuItem()
         CheckBox1 = New CheckBox()
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -368,7 +369,7 @@ Partial Class Form1
         ' 
         ' ToolStripMenuItem1
         ' 
-        ToolStripMenuItem1.DropDownItems.AddRange(New ToolStripItem() {ToolStripMenuItem3, VoiceToolStripMenuItem})
+        ToolStripMenuItem1.DropDownItems.AddRange(New ToolStripItem() {ToolStripMenuItem3, VoiceToolStripMenuItem, TrafficToolStripMenuItem})
         ToolStripMenuItem1.Name = "ToolStripMenuItem1"
         ToolStripMenuItem1.Size = New Size(78, 29)
         ToolStripMenuItem1.Text = "メニュー"
@@ -376,14 +377,20 @@ Partial Class Form1
         ' ToolStripMenuItem3
         ' 
         ToolStripMenuItem3.Name = "ToolStripMenuItem3"
-        ToolStripMenuItem3.Size = New Size(239, 34)
+        ToolStripMenuItem3.Size = New Size(270, 34)
         ToolStripMenuItem3.Text = "ゲイン再読み込み"
         ' 
         ' VoiceToolStripMenuItem
         ' 
         VoiceToolStripMenuItem.Name = "VoiceToolStripMenuItem"
-        VoiceToolStripMenuItem.Size = New Size(239, 34)
+        VoiceToolStripMenuItem.Size = New Size(270, 34)
         VoiceToolStripMenuItem.Text = "ボイス選択(&V)"
+        ' 
+        ' TrafficToolStripMenuItem
+        ' 
+        TrafficToolStripMenuItem.Name = "TrafficToolStripMenuItem"
+        TrafficToolStripMenuItem.Size = New Size(270, 34)
+        TrafficToolStripMenuItem.Text = "交通情報(&T)"
         ' 
         ' CheckBox1
         ' 
@@ -468,5 +475,6 @@ Partial Class Form1
     Friend WithEvents DelToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents VoiceToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents TrafficToolStripMenuItem As ToolStripMenuItem
 
 End Class

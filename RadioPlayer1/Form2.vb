@@ -5,7 +5,7 @@
     Public Overloads Function ShowDialog(Owner As IWin32Window, editMusic As Music)
 
         'Typeコンボボックスの内容を設定
-        cmb_Type.Items.AddRange({Music.WaveType.Music, Music.WaveType.Jingle})
+        cmb_Type.Items.AddRange({Music.WaveType.Music, Music.WaveType.Jingle, Music.WaveType.Traffic})
 
         '編集する曲を登録
         Me.EditMusic = editMusic
@@ -45,8 +45,5 @@
         'フォームを閉じる
         Me.Close()
     End Sub
-
-
-
 
 End Class
