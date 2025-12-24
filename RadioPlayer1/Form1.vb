@@ -71,10 +71,6 @@ Public Class Form1
             'リストビューのカラムサイズを調整
             ListView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize)
 
-
-            TrafficToolStripMenuItem.Checked = Setting.Traffic
-
-
         Catch ex As IO.FileNotFoundException
             '音楽情報ファイルがなければ、そのまま進行
         End Try
@@ -139,7 +135,7 @@ Public Class Form1
                 IsExiter = True
             End If
 
-            If GenreCount >= 3 AndAlso SelectMusic.TypeEnum = Music.WaveType.Music Then
+            If GenreCount >= Setting.JingleFrequency AndAlso SelectMusic.TypeEnum = Music.WaveType.Music Then
                 If MusicList(i).TypeEnum = Music.WaveType.Jingle OrElse MusicList.ExistsType(Music.WaveType.Jingle) = False Then
                     IsExiter = True
                     GenreCount = 0
@@ -218,7 +214,7 @@ Public Class Form1
 
     Private Sub MusicPlay()
 
-        If ToolStripMenuItem3.Checked OrElse SelectMusic.Gein = 0 Then
+        If Setting.Gein OrElse SelectMusic.Gein = 0 Then
             'ゲイン値を計算
             Dim Gain = New WeighingGain
             MusicReader.Volume = Gain.WeingingGein(SelectMusic.FileNameFull)
@@ -368,7 +364,9 @@ Scenario1:      Dim SelectedVoice As Integer
                 End If
 
                 '自己紹介文を登録
-                Scenario = VoiceList(SelectedVoice).MySelf & "。" & Scenario
+                If Setting.MySelf Then
+                    Scenario = VoiceList(SelectedVoice).MySelf & "。" & Scenario
+                End If
 
                 'もしトーク文が長過ぎたら、再抽選
                 If SelectMusic.IntroMaxLength > 0 AndAlso Scenario.Length > SelectMusic.IntroMaxLength Then
@@ -521,6 +519,9 @@ Scenario1:      Dim SelectedVoice As Integer
                 '台本を入力
                 Tx = oTalk.Text
                 Scenario = oTalk.Text
+
+                Tx = Tx.Replace("[RadioName]", Setting.RadioName)
+                Scenario = Scenario.Replace("[RadioName]", Setting.RadioName)
 
                 Label10.Text = Tx & vbCrLf
                 Label10.Text &= "by. " & VoiceList(SelectedVoice).Name
@@ -1012,12 +1013,6 @@ L1:     Next
         MusicChange(ListView1.SelectedItems(0).Tag)
     End Sub
 
-    Private Sub ToolStripMenuItem3_Click(sender As Object, e As EventArgs) Handles ToolStripMenuItem3.Click
-
-        ToolStripMenuItem3.Checked = Not ToolStripMenuItem3.Checked
-
-
-    End Sub
 
     Private Sub ListView1_ColumnClick(sender As Object, e As ColumnClickEventArgs) Handles ListView1.ColumnClick
         If e.Column > 0 Then Exit Sub
@@ -1131,7 +1126,13 @@ L1:     Next
 
         Dim Tx As New List(Of String)
 
-        Dim str As String = "時刻は" & Now.ToString("h時m分") & "になりました。ここでボイボ寮ラジオ 交通情報です。道路交通情報センターの "
+        Dim str As String = ""
+
+        If Setting.MySelf Then
+            str = VoiceList(SelectedVoiceMC).MySelf & "。"
+        End If
+
+        str &= "時刻は" & Now.ToString("h時m分") & "になりました。ここで" & Setting.RadioName & "交通情報です。道路交通情報センターの "
         str &= VoiceList(SelectedVoiceCenter).YourName & "さんどうぞ"
         Tx.Add(str)
 
@@ -1192,11 +1193,6 @@ L1:     Next
 
     End Sub
 
-    Private Sub TrafficToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TrafficToolStripMenuItem.Click
-        TrafficToolStripMenuItem.Checked = Not TrafficToolStripMenuItem.Checked
-
-        Setting.Traffic = TrafficToolStripMenuItem.Checked
-    End Sub
 
     Private Sub SettingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SettingToolStripMenuItem.Click
 
