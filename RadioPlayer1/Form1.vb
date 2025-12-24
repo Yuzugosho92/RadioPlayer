@@ -34,8 +34,11 @@ Public Class Form1
     Dim volumeProvider As VolumeSampleProvider
     Dim Wo, Wo2 As WaveOut
 
-    Dim MusicList As New MusicList
-    Dim TalkList As New List(Of Talk)
+    Public MusicList As New MusicList
+    Public TalkList As New List(Of Talk)
+    Public VoiceList As New List(Of VoiceCharacter)
+
+    Public Setting As New Setting
 
     Dim Rnd As New Random
 
@@ -43,17 +46,20 @@ Public Class Form1
 
     Dim OnTalk As Boolean
 
-    Dim VoiceList As New List(Of VoiceCharacter)
+
 
     Dim TimeWhenTraffic As Date
 
     'フォームスタート
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        Try
-            'JSONファイルを読み込む
-            JsonInput()
+        'ロードクラスで各JSONを読み込む
+        Dim Load As New Load(Me)
 
+        Label10.Text = "ロード完了"
+        Label8.Text = MusicList.Count & "曲"
+
+        Try
             'リストビューに音楽を登録
             For i As Integer = 0 To MusicList.Count - 1
                 Dim oListViewItem As ListViewItem = ListView1.Items.Add(MusicList(i).Title)
@@ -64,6 +70,10 @@ Public Class Form1
 
             'リストビューのカラムサイズを調整
             ListView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize)
+
+
+            TrafficToolStripMenuItem.Checked = Setting.Traffic
+
 
         Catch ex As IO.FileNotFoundException
             '音楽情報ファイルがなければ、そのまま進行
@@ -573,15 +583,56 @@ Scenario1:      Dim SelectedVoice As Integer
     Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
 
 
-        If SelectMusic IsNot Nothing AndAlso MusicList.ExistsType(Music.WaveType.Traffic) AndAlso TrafficToolStripMenuItem.Checked Then
+        If SelectMusic IsNot Nothing AndAlso MusicList.ExistsType(Music.WaveType.Traffic) AndAlso Setting.Traffic Then
             Select Case SelectMusic.TypeEnum
                 Case Music.WaveType.Jingle
 
 
-                    If TimeWhenTraffic.AddMinutes(5) < Now Then
+                    If TimeWhenTraffic.AddMinutes(Setting.TrafficInterval) < Now Then
+
+                        'ボイスリストが無ければ
+                        If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
+                            '次の曲へ
+                            MusicChange()
+                            Exit Sub
+                        End If
+
+                        Dim Count As Integer
+
+                        'MCの使用許可があるボイスが居ない場合
+                        For Each oVoice As VoiceCharacter In VoiceList
+                            Count += CInt(oVoice.TrafficMcUse)
+                        Next
+
+                        If Count = 0 Then
+                            '次の曲へ
+                            MusicChange()
+                            Exit Sub
+                        End If
+
+                        Count = 0
+
+                        '道路交通情報センターの使用許可があるボイスが居ない場合
+                        For Each oVoice As VoiceCharacter In VoiceList
+                            Count += CInt(oVoice.TrafficCenterUse)
+                        Next
+
+                        If Count = 0 Then
+                            '次の曲へ
+                            MusicChange()
+                            Exit Sub
+                        End If
+
+
 
                         '交通情報を流す
                         TrafficInfo()
+
+
+
+
+
+
 
                     Else
 
@@ -617,88 +668,6 @@ Scenario1:      Dim SelectedVoice As Integer
 
 
     End Sub
-
-
-    'JSONファイル読み込み
-    Private Sub JsonInput()
-
-        '曲が再生されていたら止める
-        If Wo IsNot Nothing Then
-            Wo.Stop()
-            Timer1.Stop()
-
-            Label10.Text = "Now Loading..."
-        End If
-
-        '音楽リストをクリアする
-        If MusicList IsNot Nothing Then
-            MusicList.Clear()
-        End If
-
-
-        Dim Reader As IO.StreamReader
-        Dim str As String
-
-        Try
-            '音楽情報ファイルを開く
-            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\Setting\List.json")
-            'JSON文字列を一括で読み取る
-            str = Reader.ReadToEnd
-            'ファイルを閉じる
-            Reader.Close()
-
-            'JSON文字列を音楽情報クラスに登録
-            MusicList = JsonSerializer.Deserialize(Of MusicList)(str)
-
-        Catch ex As FileNotFoundException
-            '音楽情報ファイルが無い場合、スルーする
-        Catch ex As System.Text.Json.JsonException
-            'JSONの記述ミスがある場合
-            MessageBox.Show("音楽リストに記述ミスがありそうです" & vbCrLf & vbCrLf & ex.Message, Me.Text, 0, MessageBoxIcon.Error)
-        End Try
-
-
-        Try
-            'トークパターンファイルを開く
-            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\Setting\TalkList.json")
-            'JSON文字列を一括で読み取る
-            str = Reader.ReadToEnd
-            'ファイルを閉じる
-            Reader.Close()
-
-            TalkList = JsonSerializer.Deserialize(Of List(Of Talk))(str)
-
-        Catch ex As FileNotFoundException
-            'トークパターンファイルが無い場合、スルーする
-        Catch ex As System.Text.Json.JsonException
-            'JSONの記述ミスがある場合
-            MessageBox.Show("トークパターンリストに記述ミスがありそうです" & vbCrLf & vbCrLf & ex.Message, Me.Text, 0, MessageBoxIcon.Error)
-        End Try
-
-
-        Try
-            'ボイスパターンファイルを開く
-            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\Setting\VoiceList.json")
-            'JSON文字列を一括で読み取る
-            str = Reader.ReadToEnd
-            'ファイルを閉じる
-            Reader.Close()
-
-            VoiceList = JsonSerializer.Deserialize(Of List(Of VoiceCharacter))(str)
-
-        Catch ex As FileNotFoundException
-            'ボイスパターンファイルが無い場合、スルーする
-        Catch ex As System.Text.Json.JsonException
-            'JSONの記述ミスがある場合
-            MessageBox.Show("ボイスリストに記述ミスがありそうです" & vbCrLf & vbCrLf & ex.Message, Me.Text, 0, MessageBoxIcon.Error)
-        End Try
-
-        Label10.Text = "ロード完了"
-        Label8.Text = MusicList.Count & "曲"
-
-    End Sub
-
-
 
 
 
@@ -784,6 +753,14 @@ Scenario1:      Dim SelectedVoice As Integer
 
     'ソフトを終了するとき
     Private Sub Form1_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
+        'セーブクラスで保存する
+        Dim Save As New Save(Me)
+
+
+
+
+
+
         '音楽情報を保存する
         Dim options As New JsonSerializerOptions
         options.WriteIndented = True
@@ -1112,6 +1089,7 @@ L1:     Next
 
 
     Private Async Sub TrafficInfo()
+
         '次の曲を選曲
         Do
             Dim i As Integer
@@ -1126,25 +1104,56 @@ L1:     Next
 
         Loop
 
+        'MCを選択
+        Dim SelectedVoiceMC As Integer
+
+        '使用許可があるボイスが出るまで抽選
+        Do
+            SelectedVoiceMC = Rnd.Next(0, VoiceList.Count)
+
+            If VoiceList(SelectedVoiceMC).TrafficMcUse Then
+                Exit Do
+            End If
+        Loop
+
+        '情報センター担当者を選択
+        Dim SelectedVoiceCenter As Integer
+
+        '使用許可があるボイスが出るまで抽選
+        Do
+            SelectedVoiceCenter = Rnd.Next(0, VoiceList.Count)
+
+            If VoiceList(SelectedVoiceCenter).TrafficCenterUse Then
+                Exit Do
+            End If
+        Loop
+
+
         Dim Tx As New List(Of String)
 
-        Tx.Add("時刻は" & Now.ToString("h時m分") & "になりました。ここでボイボ寮ラジオ 交通情報です。道路交通情報センターの セブンさんどうぞ")
+        Dim str As String = "時刻は" & Now.ToString("h時m分") & "になりました。ここでボイボ寮ラジオ 交通情報です。道路交通情報センターの "
+        str &= VoiceList(SelectedVoiceCenter).YourName & "さんどうぞ"
+        Tx.Add(str)
+
         Tx.Add("はい、首都高速は都心環状線内回り、霞が関を先頭に1キロ、渋滞しています")
         Tx.Add("外神田を先頭に、6号線は向島、7号線は錦糸町、9号線は福住まで、それぞれ渋滞しています")
         Tx.Add("一般道は、晴海通りの勝どき交差点で事故の為、日比谷付近まで渋滞しています")
         Tx.Add("このあとも安全運転でお願いします")
-        Tx.Add("道路交通情報センターの セブンでした")
-        Tx.Add("ありがとうございました。次の交通情報は、" & Now.AddMinutes(30).ToString("h時m分") & "頃お伝えいたします")
+
+        str = "道路交通情報センターの " & VoiceList(SelectedVoiceCenter).TrafficMySelf & "でした"
+        Tx.Add(str)
+
+        Tx.Add("ありがとうございました。次の交通情報は、" & Now.AddMinutes(Setting.TrafficInterval).ToString("h時m分") & "頃お伝えいたします")
 
         Dim Vc As New List(Of Integer)
 
-        Vc.Add(2)
-        Vc.Add(30)
-        Vc.Add(30)
-        Vc.Add(30)
-        Vc.Add(30)
-        Vc.Add(30)
-        Vc.Add(2)
+        Vc.Add(SelectedVoiceMC)
+        Vc.Add(SelectedVoiceCenter)
+        Vc.Add(SelectedVoiceCenter)
+        Vc.Add(SelectedVoiceCenter)
+        Vc.Add(SelectedVoiceCenter)
+        Vc.Add(SelectedVoiceCenter)
+        Vc.Add(SelectedVoiceMC)
 
 
         Dim Bt As New Dictionary(Of Integer, Byte())
@@ -1185,8 +1194,22 @@ L1:     Next
 
     Private Sub TrafficToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TrafficToolStripMenuItem.Click
         TrafficToolStripMenuItem.Checked = Not TrafficToolStripMenuItem.Checked
+
+        Setting.Traffic = TrafficToolStripMenuItem.Checked
     End Sub
 
+    Private Sub SettingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SettingToolStripMenuItem.Click
+
+        Dim F As New Form4
+
+        'サブフォームを起動
+        F.ShowDialog(Me, Setting)
+
+
+
+
+
+    End Sub
 End Class
 
 

@@ -322,15 +322,26 @@ End Class
 
 Public Class VoiceCharacter
 
-    Sub New(id As Integer, name As String, mySelf As String)
-        Me.Id = id
-        Me.Name = name
-        Me.MySelf = mySelf
-    End Sub
-
+    'VOICEVOXの内部番号
     Public Property Id As Integer
+
+    'フルネーム
     Public Property Name As String
+
+    '自分の呼び方（MCの時）
     Public Property MySelf As String
+
+    '自分の呼び方（交通情報の時）
+    Public Property TrafficMySelf As String = ""
+
+    '相手の呼び方
+    Public Property YourName As String = ""
+
+    'MCで使用するかどうか
     Public Property Use As Boolean = True
+
+    '交通情報で使用するかどうか
+    Public Property TrafficMcUse As Boolean = True
+    Public Property TrafficCenterUse As Boolean = True
 
 End Class

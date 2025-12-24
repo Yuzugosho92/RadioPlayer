@@ -61,6 +61,7 @@ Partial Class Form1
         ToolStripMenuItem3 = New ToolStripMenuItem()
         VoiceToolStripMenuItem = New ToolStripMenuItem()
         TrafficToolStripMenuItem = New ToolStripMenuItem()
+        SettingToolStripMenuItem = New ToolStripMenuItem()
         CheckBox1 = New CheckBox()
         Timer2 = New Timer(components)
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -92,10 +93,10 @@ Partial Class Form1
         ' 
         ' Label1
         ' 
-        Label1.BackColor = Color.FromArgb(64, 64, 64)
+        Label1.BackColor = Color.FromArgb(CByte(64), CByte(64), CByte(64))
         Label1.BorderStyle = BorderStyle.Fixed3D
         Label1.Dock = DockStyle.Top
-        Label1.Font = New Font("Rounded M+ 1c regular", 13.999999F, FontStyle.Regular, GraphicsUnit.Point, 128)
+        Label1.Font = New Font("Rounded M+ 1c regular", 13.999999F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
         Label1.ForeColor = SystemColors.Window
         Label1.Location = New Point(0, 33)
         Label1.Name = "Label1"
@@ -111,7 +112,7 @@ Partial Class Form1
         Label2.Name = "Label2"
         Label2.Size = New Size(350, 232)
         Label2.TabIndex = 6
-        Label2.Text = "ここに音楽ファイルを投入" + vbCrLf + "(Wave, MP3, MP4, m4a, FLAC)"
+        Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(Wave, MP3, MP4, m4a, FLAC)"
         Label2.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' NUD_StartTime
@@ -287,9 +288,9 @@ Partial Class Form1
         ' 
         ' Label10
         ' 
-        Label10.BackColor = Color.FromArgb(0, 64, 64)
+        Label10.BackColor = Color.FromArgb(CByte(0), CByte(64), CByte(64))
         Label10.BorderStyle = BorderStyle.Fixed3D
-        Label10.Font = New Font("Rounded M+ 1c regular", 10.999999F, FontStyle.Regular, GraphicsUnit.Point, 128)
+        Label10.Font = New Font("Rounded M+ 1c regular", 10.999999F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
         Label10.ForeColor = Color.White
         Label10.Location = New Point(10, 165)
         Label10.Name = "Label10"
@@ -370,28 +371,34 @@ Partial Class Form1
         ' 
         ' ToolStripMenuItem1
         ' 
-        ToolStripMenuItem1.DropDownItems.AddRange(New ToolStripItem() {ToolStripMenuItem3, VoiceToolStripMenuItem, TrafficToolStripMenuItem})
+        ToolStripMenuItem1.DropDownItems.AddRange(New ToolStripItem() {ToolStripMenuItem3, VoiceToolStripMenuItem, TrafficToolStripMenuItem, SettingToolStripMenuItem})
         ToolStripMenuItem1.Name = "ToolStripMenuItem1"
-        ToolStripMenuItem1.Size = New Size(78, 29)
-        ToolStripMenuItem1.Text = "メニュー"
+        ToolStripMenuItem1.Size = New Size(104, 29)
+        ToolStripMenuItem1.Text = "メニュー(&M)"
         ' 
         ' ToolStripMenuItem3
         ' 
         ToolStripMenuItem3.Name = "ToolStripMenuItem3"
-        ToolStripMenuItem3.Size = New Size(239, 34)
+        ToolStripMenuItem3.Size = New Size(270, 34)
         ToolStripMenuItem3.Text = "ゲイン再読み込み"
         ' 
         ' VoiceToolStripMenuItem
         ' 
         VoiceToolStripMenuItem.Name = "VoiceToolStripMenuItem"
-        VoiceToolStripMenuItem.Size = New Size(239, 34)
+        VoiceToolStripMenuItem.Size = New Size(270, 34)
         VoiceToolStripMenuItem.Text = "ボイス選択(&V)"
         ' 
         ' TrafficToolStripMenuItem
         ' 
         TrafficToolStripMenuItem.Name = "TrafficToolStripMenuItem"
-        TrafficToolStripMenuItem.Size = New Size(239, 34)
+        TrafficToolStripMenuItem.Size = New Size(270, 34)
         TrafficToolStripMenuItem.Text = "交通情報(&T)"
+        ' 
+        ' SettingToolStripMenuItem
+        ' 
+        SettingToolStripMenuItem.Name = "SettingToolStripMenuItem"
+        SettingToolStripMenuItem.Size = New Size(270, 34)
+        SettingToolStripMenuItem.Text = "設定(&S)"
         ' 
         ' CheckBox1
         ' 
@@ -478,5 +485,6 @@ Partial Class Form1
     Friend WithEvents VoiceToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents TrafficToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Timer2 As Timer
+    Friend WithEvents SettingToolStripMenuItem As ToolStripMenuItem
 
 End Class
