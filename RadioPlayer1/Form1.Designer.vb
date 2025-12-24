@@ -62,6 +62,7 @@ Partial Class Form1
         VoiceToolStripMenuItem = New ToolStripMenuItem()
         TrafficToolStripMenuItem = New ToolStripMenuItem()
         CheckBox1 = New CheckBox()
+        Timer2 = New Timer(components)
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_IntroTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -377,19 +378,19 @@ Partial Class Form1
         ' ToolStripMenuItem3
         ' 
         ToolStripMenuItem3.Name = "ToolStripMenuItem3"
-        ToolStripMenuItem3.Size = New Size(270, 34)
+        ToolStripMenuItem3.Size = New Size(239, 34)
         ToolStripMenuItem3.Text = "ゲイン再読み込み"
         ' 
         ' VoiceToolStripMenuItem
         ' 
         VoiceToolStripMenuItem.Name = "VoiceToolStripMenuItem"
-        VoiceToolStripMenuItem.Size = New Size(270, 34)
+        VoiceToolStripMenuItem.Size = New Size(239, 34)
         VoiceToolStripMenuItem.Text = "ボイス選択(&V)"
         ' 
         ' TrafficToolStripMenuItem
         ' 
         TrafficToolStripMenuItem.Name = "TrafficToolStripMenuItem"
-        TrafficToolStripMenuItem.Size = New Size(270, 34)
+        TrafficToolStripMenuItem.Size = New Size(239, 34)
         TrafficToolStripMenuItem.Text = "交通情報(&T)"
         ' 
         ' CheckBox1
@@ -476,5 +477,6 @@ Partial Class Form1
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents VoiceToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents TrafficToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents Timer2 As Timer
 
 End Class

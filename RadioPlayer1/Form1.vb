@@ -25,6 +25,7 @@ Imports System.Threading
 Imports System.Windows.Forms.VisualStyles
 Imports System.Configuration
 Imports NAudio
+Imports System.Transactions
 
 Public Class Form1
 
@@ -740,6 +741,8 @@ Scenario1:      Dim SelectedVoice As Integer
     'Wavバイト配列を再生する
     Private Async Function ByteArrayPlay(bt As Byte(), OnFull As Boolean) As Task
 
+        If bt Is Nothing Then Exit Function
+
         Dim Reader As New WaveFileReader(New MemoryStream(bt))
 
         'プレイヤーを召喚
@@ -1108,6 +1111,41 @@ L1:     Next
 
     Private Async Sub TrafficInfo()
 
+        Dim Tx As New List(Of String)
+
+        Tx.Add("時刻は" & Now.ToString("h時m分") & "になりました。ここでボイボ寮ラジオ 交通情報です。道路交通情報センターの セブンさんどうぞ")
+        Tx.Add("はい、首都高速は都心環状線内回り、霞が関を先頭に1キロ、渋滞しています")
+        Tx.Add("外神田を先頭に、6号線は向島、7号線は錦糸町、9号線は福住まで、それぞれ渋滞しています")
+        Tx.Add("一般道は、晴海通りの勝どき交差点で事故の為、日比谷付近まで渋滞しています")
+        Tx.Add("このあとも安全運転でお願いします")
+        Tx.Add("道路交通情報センターの セブンでした")
+        Tx.Add("ありがとうございました。次の交通情報は、" & Now.AddMinutes(30).ToString("h時m分") & "頃お伝えいたします")
+
+        Dim Vc As New List(Of Integer)
+
+        Vc.Add(2)
+        Vc.Add(30)
+        Vc.Add(30)
+        Vc.Add(30)
+        Vc.Add(30)
+        Vc.Add(30)
+        Vc.Add(2)
+
+
+        Dim Bt As New List(Of Byte())
+
+
+        Dim t0 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(0), Vc(0)))
+        Dim t1 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(1), Vc(1)))
+
+
+        Dim t2 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(2), Vc(2)))
+        Dim t3 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(3), Vc(3)))
+
+        Dim t4 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(4), Vc(4)))
+        Dim t5 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(5), Vc(5)))
+
+        Dim t6 As Task(Of Byte()) = Task.Run(Function() VoicevoxCreate(Tx(6), Vc(6)))
 
         '次の曲を選曲
 
@@ -1124,37 +1162,20 @@ L1:     Next
 
         Loop
 
+        Task.WaitAll(t0)
 
+        Bt.Add(t0.Result)
+        Bt.Add(t1.Result)
+        Bt.Add(t2.Result)
+        Bt.Add(t3.Result)
+        Bt.Add(t4.Result)
+        Bt.Add(t5.Result)
+        Bt.Add(t6.Result)
 
+        For i As Integer = 0 To 6
+            Label10.Text = Tx(i)
 
-
-
-
-
-        Dim Tx As New List(Of String)
-
-        Tx.Add("時刻は" & Now.ToString("h時m分") & "になりました。ここでボイボ寮ラジオ 交通情報です。道路交通情報センターの セブンさんどうぞ")
-        Tx.Add("はい、首都高速は都心環状線内回り、霞が関を先頭に1キロ、渋滞しています")
-        Tx.Add("道路交通情報センターの セブンでした")
-        Tx.Add("ありがとうございました。次の交通情報は、" & Now.AddMinutes(30).ToString("h時m分") & "頃お伝えいたします")
-
-        Dim Vc As New List(Of Integer)
-
-        Vc.Add(2)
-        Vc.Add(30)
-        Vc.Add(30)
-        Vc.Add(2)
-
-
-        Dim Bt As New List(Of Byte())
-
-
-        For i As Integer = 0 To Tx.Count - 1
-            Bt.Add(Await VoicevoxCreate(Tx(i), Vc(i)))
-        Next
-
-        For Each oBt As Byte() In Bt
-            Await ByteArrayPlay(oBt, True)
+            Await ByteArrayPlay(Bt(i), True)
         Next
 
         '今の時刻を記録する
@@ -1170,6 +1191,7 @@ L1:     Next
     Private Sub TrafficToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles TrafficToolStripMenuItem.Click
         TrafficToolStripMenuItem.Checked = Not TrafficToolStripMenuItem.Checked
     End Sub
+
 End Class
 
 
