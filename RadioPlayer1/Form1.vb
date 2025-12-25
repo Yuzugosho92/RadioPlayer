@@ -1151,8 +1151,6 @@ L1:     Next
             '音声を再生
             If Bt.ContainsKey(i) Then
                 Await ByteArrayPlay(Bt(i), True)
-
-                Bt(i) = Nothing
             End If
         Next
 
