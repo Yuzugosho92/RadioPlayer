@@ -150,6 +150,13 @@ Public Class Form1
                 Else
                     IsExiter = False
                 End If
+            ElseIf SelectMusic.TypeEnum = Music.WaveType.Traffic Then
+                If MusicList(i).TypeEnum = Music.WaveType.Music Then
+                    IsExiter = True
+                    GenreCount = 0
+                Else
+                    IsExiter = False
+                End If
             End If
 
             If IsExiter Then
