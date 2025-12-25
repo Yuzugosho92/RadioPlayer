@@ -5,6 +5,19 @@ Public Class TrafficInfo
 
     Dim Rnd As New Random
 
+    '都市高速の名前（首都高・阪神高速など）
+    Public Property CityHighwayName As String = "首都高速道路"
+
+    '高速道路の台本リスト
+    Public Property Highway As New List(Of String)
+    '都市高速の台本リスト
+    Public Property CityHighway As New List(Of String)
+    '一般道の台本リスト
+    Public Property GeneralRoad As New List(Of String)
+    '最後の一言リスト
+    Public Property EndingTalk As New List(Of String)
+
+
     '複数選択の文字列を置き換える
     Private Function PatternReplace(str As String) As String
 
@@ -30,14 +43,6 @@ Public Class TrafficInfo
 
 
 
-
-    Public Property Highway As New List(Of String)
-
-    Public Property CityHighway As New List(Of String)
-
-    Public Property GeneralRoad As New List(Of String)
-
-    Public Property EndingTalk As New List(Of String)
 
 
     Private Selecting As New List(Of Integer)
@@ -101,7 +106,7 @@ Public Class TrafficInfo
         Loop Until i = 3
 
 
-        ScenarioList.Add(New Scenario("次に首都高速道路の状況です。", Voice))
+        ScenarioList.Add(New Scenario("次に" & CityHighwayName & "の状況です。", Voice))
 
         Selecting.Clear()
         i = 0
