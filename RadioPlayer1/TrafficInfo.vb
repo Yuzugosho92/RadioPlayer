@@ -8,7 +8,7 @@ Public Class TrafficInfo
     '複数選択の文字列を置き換える
     Private Function PatternReplace(str As String) As String
 
-        Dim p As String = "\[Choice\{(?<Text>[,、\w]*?)\}\]"
+        Dim p As String = "\{(?<Text>[,、\w]*?)\}"
         Dim r As New Text.RegularExpressions.Regex(p, System.Text.RegularExpressions.RegexOptions.IgnoreCase)
         Dim m As Text.RegularExpressions.Match
 
@@ -36,6 +36,9 @@ Public Class TrafficInfo
     Public Property CityHighway As New List(Of String)
 
     Public Property GeneralRoad As New List(Of String)
+
+    Public Property EndingTalk As New List(Of String)
+
 
     Private Selecting As New List(Of Integer)
 
@@ -75,12 +78,34 @@ Public Class TrafficInfo
         Dim Rnd As New Random
 
         Tx.Append("はい。")
-        Tx.Append("まず首都高速道路の状況です。")
+        Tx.Append("まず高速道路の状況です。")
 
         ScenarioList.Add(New Scenario(Tx.ToString, Voice))
 
+        Selecting.Clear()
 
         Dim i As Integer
+        Do
+            Tx.Clear()
+
+            Dim Num As Integer = Rnd.Next(Highway.Count)
+
+            If Selecting.Contains(Num) = False Then
+
+                Tx.Append(PatternReplace(Highway(Num)))
+                ScenarioList.Add(New Scenario(Tx.ToString, Voice))
+                Selecting.Add(Num)
+
+                i += 1
+            End If
+        Loop Until i = 3
+
+
+        ScenarioList.Add(New Scenario("次に首都高速道路の状況です。", Voice))
+
+        Selecting.Clear()
+        i = 0
+
         Do
             Tx.Clear()
 
@@ -103,7 +128,6 @@ Public Class TrafficInfo
         Selecting.Clear()
         i = 0
 
-
         Do
             Tx.Clear()
 
@@ -119,9 +143,18 @@ Public Class TrafficInfo
             End If
         Loop Until i = 3
 
+
+        '最後に啓発の一言
+        Dim Num2 As Integer = Rnd.Next(EndingTalk.Count + 1)
+
+        If Num2 < EndingTalk.Count Then
+            ScenarioList.Add(New Scenario(EndingTalk(Num2), Voice))
+        End If
+
         Tx.Clear()
 
-        Tx.Append("道路交通情報センターの " & Voice.TrafficMySelf & "でした")
+
+        Tx.Append("道路交通情報センターの " & Voice.TrafficMySelf & "でした。")
 
         ScenarioList.Add(New Scenario(Tx.ToString, Voice))
 

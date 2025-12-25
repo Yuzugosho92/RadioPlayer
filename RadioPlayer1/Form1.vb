@@ -541,14 +541,18 @@ Scenario1:      Dim SelectedVoice As Integer
         '曲が終了する3秒前ならば
         Select Case TimeCount
             Case Is >= (MusicLength - 3)
-                'タイマーを止める
-                Timer1.Stop()
-                '再生カウントを追加
-                SelectMusic.PlayCount += 1
-                'トーク中を解除
-                OnTalk = False
-                '音量をフェードアウトする
-                BackgroundWorker1.RunWorkerAsync()
+
+                If SelectMusic.TypeEnum <> Music.WaveType.Traffic Then
+                    'タイマーを止める
+                    Timer1.Stop()
+                    '再生カウントを追加
+                    SelectMusic.PlayCount += 1
+                    'トーク中を解除
+                    OnTalk = False
+                    '音量をフェードアウトする
+                    BackgroundWorker1.RunWorkerAsync()
+                End If
+
         End Select
 
 
