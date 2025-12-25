@@ -237,7 +237,7 @@ Public Class Form1
 
 
         OffsetSample = New OffsetSampleProvider(MusicReader)
-        volumeProvider = New VolumeSampleProvider(MusicReader)
+        volumeProvider = New VolumeSampleProvider(OffsetSample)
 
         '曲の開始時間を設定
         OffsetSample.SkipOver = TimeSpan.FromSeconds(SelectMusic.StartTime)
@@ -252,7 +252,7 @@ Public Class Form1
 
 
         '曲の終了位置を設定
-        If SelectMusic.EndingTime = 0 OrElse CheckBox1.Checked Then
+        If SelectMusic.EndingTime = 0 OrElse CheckBox1.Checked OrElse SelectMusic.TypeEnum = Music.WaveType.Traffic Then
             MusicLength = MusicReader.TotalTime.TotalSeconds
         Else
             OffsetSample.Take = TimeSpan.FromSeconds(SelectMusic.EndingTime)
@@ -725,7 +725,6 @@ Scenario1:      Dim SelectedVoice As Integer
                 Await Task.Delay(100)
             End While
         End If
-
     End Function
 
 
@@ -1074,7 +1073,7 @@ L1:     Next
 
 
     '交通情報を流す
-    Dim Bt As New Dictionary(Of Integer, Byte())
+    Dim Bt As Dictionary(Of Integer, Byte())
 
     Private Async Sub TrafficInfo()
 
@@ -1134,10 +1133,7 @@ L1:     Next
 
         Scenario.InsertRange(1, TrafficInfoList.CenterScenario(Setting, SelectedVoiceCenter))
 
-
-
-        'Dim Bt As New Dictionary(Of Integer, Byte())
-        Bt.Clear()
+        Bt = New Dictionary(Of Integer, Byte())
 
         '冒頭の音声を作成
         Bt.Add(0, Await VoicevoxCreate(Scenario(0).Text, Scenario(0).Voice.Id))
@@ -1155,6 +1151,8 @@ L1:     Next
             '音声を再生
             If Bt.ContainsKey(i) Then
                 Await ByteArrayPlay(Bt(i), True)
+
+                Bt(i) = Nothing
             End If
         Next
 
@@ -1167,6 +1165,8 @@ L1:     Next
 
         Try
             If Bt.Count > 0 Then
+                Bt.Clear()
+                Bt = Nothing
                 '音量をフェードアウトする
                 BackgroundWorker1.RunWorkerAsync()
             End If
@@ -1201,8 +1201,12 @@ L1:     Next
         OnTalk = False
 
         If Wo2 IsNot Nothing Then
-            Bt.Clear()
             Wo2.Stop()
+        End If
+
+        If Bt IsNot Nothing Then
+            Bt.Clear()
+            Bt = Nothing
         End If
 
         MusicChange()
