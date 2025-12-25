@@ -81,6 +81,24 @@ Public Class Load
             MessageBox.Show("ボイスリストに記述ミスがありそうです" & vbCrLf & vbCrLf & ex.Message, Owner.Text, 0, MessageBoxIcon.Error)
         End Try
 
+
+        Try
+            '交通情報ファイルを開く
+            Reader = New IO.StreamReader(My.Application.Info.DirectoryPath & "\Setting\TrafficInfo.json")
+            'JSON文字列を一括で読み取る
+            str = Reader.ReadToEnd
+            'ファイルを閉じる
+            Reader.Close()
+
+            Owner.TrafficInfoList = JsonSerializer.Deserialize(Of TrafficInfo)(str)
+
+        Catch ex As FileNotFoundException
+            '交通情報ファイルが無い場合、スルーする
+        Catch ex As System.Text.Json.JsonException
+            'JSONの記述ミスがある場合
+            MessageBox.Show("交通情報ファイルに記述ミスがありそうです" & vbCrLf & vbCrLf & ex.Message, Owner.Text, 0, MessageBoxIcon.Error)
+        End Try
+
     End Sub
 
 End Class

@@ -128,6 +128,7 @@ Partial Class Form4
         ' 
         NumericUpDown1.Location = New Point(96, 145)
         NumericUpDown1.Maximum = New Decimal(New Integer() {180, 0, 0, 0})
+        NumericUpDown1.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
         NumericUpDown1.Name = "NumericUpDown1"
         NumericUpDown1.Size = New Size(60, 31)
         NumericUpDown1.TabIndex = 3
@@ -217,6 +218,7 @@ Partial Class Form4
         ' 
         NumericUpDown2.Location = New Point(96, 25)
         NumericUpDown2.Maximum = New Decimal(New Integer() {180, 0, 0, 0})
+        NumericUpDown2.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
         NumericUpDown2.Name = "NumericUpDown2"
         NumericUpDown2.Size = New Size(54, 31)
         NumericUpDown2.TabIndex = 5

@@ -26,6 +26,7 @@ Imports System.Windows.Forms.VisualStyles
 Imports System.Configuration
 Imports NAudio
 Imports System.Transactions
+Imports System.Runtime.InteropServices.JavaScript.JSType
 
 Public Class Form1
 
@@ -46,7 +47,7 @@ Public Class Form1
 
     Dim OnTalk As Boolean
 
-
+    Public TrafficInfoList As New TrafficInfo
 
     Dim TimeWhenTraffic As Date
 
@@ -528,7 +529,6 @@ Scenario1:      Dim SelectedVoice As Integer
 
                 Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
 
-                OnTalk = True
             End If
 
         End If
@@ -624,36 +624,22 @@ Scenario1:      Dim SelectedVoice As Integer
                             Exit Sub
                         End If
 
-
-
-                        '交通情報を流す
-                        TrafficInfo()
-
-
-
-
-
-
-
+                        'VOICEVOXが起動していない時
+                        If Diagnostics.Process.GetProcessesByName("VOICEVOX").Length = 0 Then
+                            '次の曲へ
+                            MusicChange()
+                        Else
+                            '交通情報を流す
+                            TrafficInfo()
+                        End If
                     Else
-
                         '次の曲へ
                         MusicChange()
                     End If
 
-
-
-
-
-
-
                 Case Else
-
                     '次の曲へ
                     MusicChange()
-
-
-
             End Select
 
         Else
@@ -1089,84 +1075,63 @@ L1:     Next
         Loop
 
         'MCを選択
-        Dim SelectedVoiceMC As Integer
+        Dim SelectedVoiceMC As VoiceCharacter
 
         '使用許可があるボイスが出るまで抽選
         Do
-            SelectedVoiceMC = Rnd.Next(0, VoiceList.Count)
+            Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
 
-            If VoiceList(SelectedVoiceMC).TrafficMcUse Then
+            If VoiceList(Num).TrafficMcUse Then
+                SelectedVoiceMC = VoiceList(Num)
                 Exit Do
             End If
         Loop
 
         '情報センター担当者を選択
-        Dim SelectedVoiceCenter As Integer
+        Dim SelectedVoiceCenter As VoiceCharacter
 
         '使用許可があるボイスが出るまで抽選
         Do
-            SelectedVoiceCenter = Rnd.Next(0, VoiceList.Count)
+            Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
 
-            If VoiceList(SelectedVoiceCenter).TrafficCenterUse Then
+            If VoiceList(Num).TrafficCenterUse Then
+                SelectedVoiceCenter = VoiceList(Num)
                 Exit Do
             End If
         Loop
 
 
-        Dim Tx As New List(Of String)
 
-        Dim str As String = ""
 
-        If Setting.MySelf Then
-            str = VoiceList(SelectedVoiceMC).MySelf & "。"
-        End If
+        Dim Scenario As New List(Of TrafficInfo.Scenario)
 
-        str &= "時刻は" & Now.ToString("h時m分") & "になりました。ここで" & Setting.RadioName & "交通情報です。道路交通情報センターの "
-        str &= VoiceList(SelectedVoiceCenter).YourName & "さんどうぞ"
-        Tx.Add(str)
+        Scenario.AddRange(TrafficInfoList.McScenario(Setting, SelectedVoiceMC, SelectedVoiceCenter))
 
-        Tx.Add("はい、首都高速は都心環状線内回り、霞が関を先頭に1キロ、渋滞しています")
-        Tx.Add("外神田を先頭に、6号線は向島、7号線は錦糸町、9号線は福住まで、それぞれ渋滞しています")
-        Tx.Add("一般道は、晴海通りの勝どき交差点で事故の為、日比谷付近まで渋滞しています")
-        Tx.Add("このあとも安全運転でお願いします")
+        Scenario.InsertRange(1, TrafficInfoList.CenterScenario(Setting, SelectedVoiceCenter))
 
-        str = "道路交通情報センターの " & VoiceList(SelectedVoiceCenter).TrafficMySelf & "でした"
-        Tx.Add(str)
-
-        Tx.Add("ありがとうございました。次の交通情報は、" & Now.AddMinutes(Setting.TrafficInterval).ToString("h時m分") & "頃お伝えいたします")
-
-        Dim Vc As New List(Of Integer)
-
-        Vc.Add(SelectedVoiceMC)
-        Vc.Add(SelectedVoiceCenter)
-        Vc.Add(SelectedVoiceCenter)
-        Vc.Add(SelectedVoiceCenter)
-        Vc.Add(SelectedVoiceCenter)
-        Vc.Add(SelectedVoiceCenter)
-        Vc.Add(SelectedVoiceMC)
 
 
         Dim Bt As New Dictionary(Of Integer, Byte())
 
+        '冒頭の音声を作成
+        Bt.Add(0, Await VoicevoxCreate(Scenario(0).Text, Scenario(0).Voice.Id))
 
+        '続く音声を順次作成
+        Parallel.For(1, Scenario.Count, Async Sub(i)
 
-        Bt.Add(0, Await VoicevoxCreate(Tx(0), Vc(0)))
+                                            Bt.Add(i, Await VoicevoxCreate(Scenario(i).Text, Scenario(i).Voice.Id)）
 
+                                        End Sub)
 
-        Parallel.For(1, 7, Async Sub(i)
+        For i As Integer = 0 To Scenario.Count - 1
+            '音声が制作されるまで待つ
+            Do
+                If Bt.ContainsKey(i) Then Exit Do
+            Loop
 
-
-                               Dim oBt As Byte() = Await VoicevoxCreate(Tx(i), Vc(i))
-
-                               Bt.Add(i, oBt)
-
-
-                           End Sub)
-
-
-        For i As Integer = 0 To 6
-            Label10.Text = Tx(i)
-
+            'テキストを表示
+            Label10.Text = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
+            '音声を再生
             Await ByteArrayPlay(Bt(i), True)
         Next
 
@@ -1190,11 +1155,8 @@ L1:     Next
         'サブフォームを起動
         F.ShowDialog(Me, Setting)
 
-
-
-
-
     End Sub
+
 End Class
 
 

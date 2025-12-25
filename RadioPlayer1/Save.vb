@@ -20,6 +20,15 @@ Public Class Save
         Writer.Close()
 
 
+        jsonString = JsonSerializer.Serialize(Owner.TrafficInfoList, options)
+
+        Writer = New IO.StreamWriter(My.Application.Info.DirectoryPath & "\Setting\TrafficInfo.json")
+
+        'JSONに書きこむ
+        Writer.Write(jsonString)
+        Writer.Close()
+
+
 
 
 
