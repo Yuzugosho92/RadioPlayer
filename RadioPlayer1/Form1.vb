@@ -874,7 +874,7 @@ L1:     Next
     End Sub
 
     'タイミング調整の値を変更する
-    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
+    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button50.Click
 
         SelectMusic.StartTime = CInt(NUD_StartTime.Value)
         SelectMusic.EndingTime = CInt(NUD_EndingTime.Value)
@@ -890,13 +890,13 @@ L1:     Next
 
     End Sub
 
-    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button3.Click
 
         MusicReader.CurrentTime += TimeSpan.FromSeconds(10)
 
     End Sub
 
-    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
+    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button2.Click
         MusicReader.CurrentTime -= TimeSpan.FromSeconds(10)
     End Sub
 
@@ -914,7 +914,7 @@ L1:     Next
     End Sub
 
     '再生位置をラスト15秒前まで飛ばす
-    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
+    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button4.Click
 
         '曲が再生していない場合、なにもしない
         If Wo Is Nothing OrElse Wo.PlaybackState <> PlaybackState.Playing Then
@@ -995,7 +995,11 @@ L1:     Next
 
         'トークプレイヤーがある場合
         If Wo2 IsNot Nothing Then
+            Bt.Clear()
+
             Wo2.Stop()
+
+
         End If
 
 
@@ -1062,7 +1066,17 @@ L1:     Next
     End Sub
 
 
+    '交通情報を流す
+    Dim Bt As New Dictionary(Of Integer, Byte())
+
     Private Async Sub TrafficInfo()
+
+        Button1.Enabled = False
+        Button2.Enabled = False
+        Button3.Enabled = False
+        Button4.Enabled = False
+        CheckBox1.Enabled = False
+        GroupBox1.Enabled = False
 
         '次の曲を選曲
         Do
@@ -1115,7 +1129,8 @@ L1:     Next
 
 
 
-        Dim Bt As New Dictionary(Of Integer, Byte())
+        'Dim Bt As New Dictionary(Of Integer, Byte())
+        Bt.Clear()
 
         '冒頭の音声を作成
         Bt.Add(0, Await VoicevoxCreate(Scenario(0).Text, Scenario(0).Voice.Id))
@@ -1128,15 +1143,12 @@ L1:     Next
                                         End Sub)
 
         For i As Integer = 0 To Scenario.Count - 1
-            '音声が制作されるまで待つ
-            Do
-                If Bt.ContainsKey(i) Then Exit Do
-            Loop
-
             'テキストを表示
             Label10.Text = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
             '音声を再生
-            Await ByteArrayPlay(Bt(i), True)
+            If Bt.ContainsKey(i) Then
+                Await ByteArrayPlay(Bt(i), True)
+            End If
         Next
 
         '今の時刻を記録する
@@ -1146,9 +1158,21 @@ L1:     Next
         OnTalk = False
 
 
-        '音量をフェードアウトする
-        BackgroundWorker1.RunWorkerAsync()
+        Try
+            If Bt.Count > 0 Then
+                '音量をフェードアウトする
+                BackgroundWorker1.RunWorkerAsync()
+            End If
+        Catch ex As Exception
+            'スルー
+        End Try
 
+        Button1.Enabled = True
+        Button2.Enabled = True
+        Button3.Enabled = True
+        Button4.Enabled = True
+        CheckBox1.Enabled = True
+        GroupBox1.Enabled = True
     End Sub
 
 
@@ -1161,6 +1185,22 @@ L1:     Next
 
     End Sub
 
+    '次の曲へボタン
+    Private Sub Button5_Click_1(sender As Object, e As EventArgs) Handles Button5.Click
+
+        'タイマーを止める
+        Timer1.Stop()
+        'トーク中を解除
+        OnTalk = False
+
+        If Wo2 IsNot Nothing Then
+            Bt.Clear()
+            Wo2.Stop()
+        End If
+
+        MusicChange()
+
+    End Sub
 End Class
 
 

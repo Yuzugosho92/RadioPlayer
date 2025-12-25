@@ -36,11 +36,11 @@ Partial Class Form1
         Label4 = New Label()
         Label5 = New Label()
         Label6 = New Label()
-        Button5 = New Button()
-        Button6 = New Button()
-        Button7 = New Button()
+        Button50 = New Button()
+        Button3 = New Button()
+        Button2 = New Button()
         Button8 = New Button()
-        Button9 = New Button()
+        Button4 = New Button()
         Label7 = New Label()
         NUD_IntroMaxLength = New NumericUpDown()
         Label8 = New Label()
@@ -61,6 +61,7 @@ Partial Class Form1
         SettingToolStripMenuItem = New ToolStripMenuItem()
         CheckBox1 = New CheckBox()
         Timer2 = New Timer(components)
+        Button5 = New Button()
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_IntroTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -90,10 +91,10 @@ Partial Class Form1
         ' 
         ' Label1
         ' 
-        Label1.BackColor = Color.FromArgb(64, 64, 64)
+        Label1.BackColor = Color.FromArgb(CByte(64), CByte(64), CByte(64))
         Label1.BorderStyle = BorderStyle.Fixed3D
         Label1.Dock = DockStyle.Top
-        Label1.Font = New Font("Rounded M+ 1c regular", 13.999999F, FontStyle.Regular, GraphicsUnit.Point, 128)
+        Label1.Font = New Font("Rounded M+ 1c regular", 13.999999F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
         Label1.ForeColor = SystemColors.Window
         Label1.Location = New Point(0, 33)
         Label1.Name = "Label1"
@@ -103,13 +104,13 @@ Partial Class Form1
         ' Label2
         ' 
         Label2.AllowDrop = True
-        Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Right
         Label2.BorderStyle = BorderStyle.FixedSingle
         Label2.Location = New Point(561, 165)
         Label2.Name = "Label2"
         Label2.Size = New Size(350, 232)
         Label2.TabIndex = 6
-        Label2.Text = "ここに音楽ファイルを投入" + vbCrLf + "(Wave, MP3, MP4, m4a, FLAC)"
+        Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(Wave, MP3, MP4, m4a, FLAC)"
         Label2.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' NUD_StartTime
@@ -182,32 +183,32 @@ Partial Class Form1
         Label6.TabIndex = 15
         Label6.Text = "OutroTime"
         ' 
-        ' Button5
+        ' Button50
         ' 
-        Button5.Location = New Point(6, 215)
-        Button5.Name = "Button5"
-        Button5.Size = New Size(112, 34)
-        Button5.TabIndex = 9
-        Button5.Text = "変更"
-        Button5.UseVisualStyleBackColor = True
+        Button50.Location = New Point(6, 215)
+        Button50.Name = "Button50"
+        Button50.Size = New Size(112, 34)
+        Button50.TabIndex = 9
+        Button50.Text = "変更"
+        Button50.UseVisualStyleBackColor = True
         ' 
-        ' Button6
+        ' Button3
         ' 
-        Button6.Location = New Point(270, 128)
-        Button6.Name = "Button6"
-        Button6.Size = New Size(71, 34)
-        Button6.TabIndex = 2
-        Button6.Text = "+10"
-        Button6.UseVisualStyleBackColor = True
+        Button3.Location = New Point(270, 128)
+        Button3.Name = "Button3"
+        Button3.Size = New Size(71, 34)
+        Button3.TabIndex = 2
+        Button3.Text = "+10"
+        Button3.UseVisualStyleBackColor = True
         ' 
-        ' Button7
+        ' Button2
         ' 
-        Button7.Location = New Point(193, 128)
-        Button7.Name = "Button7"
-        Button7.Size = New Size(71, 34)
-        Button7.TabIndex = 1
-        Button7.Text = "-10"
-        Button7.UseVisualStyleBackColor = True
+        Button2.Location = New Point(193, 128)
+        Button2.Name = "Button2"
+        Button2.Size = New Size(71, 34)
+        Button2.TabIndex = 1
+        Button2.Text = "-10"
+        Button2.UseVisualStyleBackColor = True
         ' 
         ' Button8
         ' 
@@ -218,14 +219,14 @@ Partial Class Form1
         Button8.Text = "この時間！"
         Button8.UseVisualStyleBackColor = True
         ' 
-        ' Button9
+        ' Button4
         ' 
-        Button9.Location = New Point(347, 129)
-        Button9.Name = "Button9"
-        Button9.Size = New Size(70, 34)
-        Button9.TabIndex = 3
-        Button9.Text = "ラスト"
-        Button9.UseVisualStyleBackColor = True
+        Button4.Location = New Point(347, 129)
+        Button4.Name = "Button4"
+        Button4.Size = New Size(70, 34)
+        Button4.TabIndex = 3
+        Button4.Text = "ラスト"
+        Button4.UseVisualStyleBackColor = True
         ' 
         ' Label7
         ' 
@@ -273,7 +274,7 @@ Partial Class Form1
         GroupBox1.Controls.Add(Label5)
         GroupBox1.Controls.Add(Label6)
         GroupBox1.Controls.Add(Label7)
-        GroupBox1.Controls.Add(Button5)
+        GroupBox1.Controls.Add(Button50)
         GroupBox1.Controls.Add(NUD_IntroMaxLength)
         GroupBox1.Controls.Add(Button8)
         GroupBox1.Location = New Point(10, 400)
@@ -285,9 +286,10 @@ Partial Class Form1
         ' 
         ' Label10
         ' 
-        Label10.BackColor = Color.FromArgb(0, 64, 64)
+        Label10.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        Label10.BackColor = Color.FromArgb(CByte(0), CByte(64), CByte(64))
         Label10.BorderStyle = BorderStyle.Fixed3D
-        Label10.Font = New Font("Rounded M+ 1c regular", 10.999999F, FontStyle.Regular, GraphicsUnit.Point, 128)
+        Label10.Font = New Font("Rounded M+ 1c regular", 10.999999F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
         Label10.ForeColor = Color.White
         Label10.Location = New Point(10, 165)
         Label10.Name = "Label10"
@@ -390,24 +392,35 @@ Partial Class Form1
         CheckBox1.Text = "FULL"
         CheckBox1.UseVisualStyleBackColor = True
         ' 
+        ' Button5
+        ' 
+        Button5.Location = New Point(423, 129)
+        Button5.Name = "Button5"
+        Button5.Size = New Size(70, 34)
+        Button5.TabIndex = 36
+        Button5.Text = "NEXT"
+        Button5.UseVisualStyleBackColor = True
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(921, 756)
+        Controls.Add(Button5)
         Controls.Add(CheckBox1)
         Controls.Add(ListView1)
         Controls.Add(Label10)
         Controls.Add(GroupBox1)
         Controls.Add(HScrollBar1)
         Controls.Add(Label8)
-        Controls.Add(Button9)
-        Controls.Add(Button7)
-        Controls.Add(Button6)
+        Controls.Add(Button4)
+        Controls.Add(Button2)
+        Controls.Add(Button3)
         Controls.Add(Label2)
         Controls.Add(Label1)
         Controls.Add(Button1)
         Controls.Add(MenuStrip1)
+        MinimumSize = New Size(943, 812)
         Name = "Form1"
         Text = "ラジオ風プレイヤー"
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).EndInit()
@@ -437,11 +450,11 @@ Partial Class Form1
     Friend WithEvents Label4 As Label
     Friend WithEvents Label5 As Label
     Friend WithEvents Label6 As Label
-    Friend WithEvents Button5 As Button
-    Friend WithEvents Button6 As Button
-    Friend WithEvents Button7 As Button
+    Friend WithEvents Button50 As Button
+    Friend WithEvents Button3 As Button
+    Friend WithEvents Button2 As Button
     Friend WithEvents Button8 As Button
-    Friend WithEvents Button9 As Button
+    Friend WithEvents Button4 As Button
     Friend WithEvents Label7 As Label
     Friend WithEvents NUD_IntroMaxLength As NumericUpDown
     Friend WithEvents Label8 As Label
@@ -462,5 +475,6 @@ Partial Class Form1
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents Timer2 As Timer
     Friend WithEvents SettingToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents Button5 As Button
 
 End Class
