@@ -38,5 +38,10 @@ IntroMaxLength:<br>
 3. 右下のリストに曲が追加されますので、右クリックをして「編集(E)」を選びます。
 4. 基本情報の「Type」を「Jingle」に変更して、OKボタンを押します。
 
-
-
+◇おすすめの交通情報BGM <br>
+Message-生ギターVer- / hitoshi 様<br>
+https://www.senses-circuit.com/sounds/bgm/message-guitarver/<br>
+Traffic Stream / TECHNOTRAIN 様<br>
+https://dova-s.jp/bgm/play18151.html<br>
+Traffic News / 田中芳典 様<br>
+https://dova-s.jp/bgm/play12390.html
