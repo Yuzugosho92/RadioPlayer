@@ -1145,11 +1145,16 @@ L1:     Next
 
                                         End Sub)
 
-        For i As Integer = 0 To Scenario.Count - 1
+
+        'テキストを表示
+        Label10.Text = "By." & Scenario(0).Voice.Name & vbCrLf & Scenario(0).Text
+        Await ByteArrayPlay(Bt(0), True)
+
+        For i As Integer = 1 To Scenario.Count - 1
             'テキストを表示
             Label10.Text = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
             '音声を再生
-            If Bt.ContainsKey(i) Then
+            If Bt IsNot Nothing AndAlso Bt.ContainsKey(i) Then
                 Await ByteArrayPlay(Bt(i), True)
             End If
         Next
@@ -1160,9 +1165,8 @@ L1:     Next
         GenreCount = 0
         OnTalk = False
 
-
         Try
-            If Bt.Count > 0 Then
+            If Bt IsNot Nothing AndAlso Bt.Count > 0 Then
                 Bt.Clear()
                 Bt = Nothing
                 '音量をフェードアウトする
