@@ -750,43 +750,15 @@ Scenario1:      Dim SelectedVoice As Integer
 
     'ソフトを終了するとき
     Private Sub Form1_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
-        'セーブクラスで保存する
-        Dim Save As New Save(Me)
+        '保存作業をするクラスをインスタンス
+        Dim Save As New Save
 
-
-
-
-
-
+        '基本設定を保存する
+        Save.Save(Setting, "Setting.json")
         '音楽情報を保存する
-        Dim options As New JsonSerializerOptions
-        options.WriteIndented = True
-        options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-
-        Dim jsonString As String = JsonSerializer.Serialize(MusicList, options)
-
-        Dim Writer As New IO.StreamWriter(My.Application.Info.DirectoryPath & "\Setting\List.json")
-
-        'JSONに書きこむ
-        Writer.Write(jsonString)
-        Writer.Close()
-
-
-
+        Save.Save(MusicList, "List.json")
         'キャラクター情報を保存する
-        If VoiceList IsNot Nothing AndAlso VoiceList.Count > 0 Then
-
-            Dim di As IO.DirectoryInfo = IO.Directory.CreateDirectory(My.Application.Info.DirectoryPath & "\Setting")
-
-            jsonString = JsonSerializer.Serialize(VoiceList, options)
-
-            Writer = New IO.StreamWriter(My.Application.Info.DirectoryPath & "\Setting\VoiceList.json")
-
-            Writer.Write(jsonString)
-            Writer.Close()
-
-        End If
-
+        Save.Save(VoiceList, "VoiceList.json")
     End Sub
 
 

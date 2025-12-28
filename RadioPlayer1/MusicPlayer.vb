@@ -1,0 +1,30 @@
+﻿Public Class MusicPlayer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+End Class
