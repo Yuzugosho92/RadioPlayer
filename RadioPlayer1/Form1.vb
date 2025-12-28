@@ -30,12 +30,12 @@ Imports System.Runtime.InteropServices.JavaScript.JSType
 
 Public Class Form1
 
-    Dim MusicReader As AudioFileReader
-    Dim OffsetSample As OffsetSampleProvider
-    Dim volumeProvider As VolumeSampleProvider
-    Dim Wo, Wo2 As WaveOut
+    'Dim MusicReader As AudioFileReader
+    'Dim OffsetSample As OffsetSampleProvider
+    'Dim volumeProvider As VolumeSampleProvider
+    Dim Wo2 As WaveOut
 
-    Public MusicList As New MusicList
+    'Public MusicList As New MusicList
     Public TalkList As New List(Of Talk)
     Public VoiceList As New List(Of VoiceCharacter)
 
@@ -43,7 +43,7 @@ Public Class Form1
 
     Dim Rnd As New Random
 
-    Public SelectMusic As Music
+    'Public SelectMusic As Music
 
     Dim OnTalk As Boolean
 
@@ -51,65 +51,86 @@ Public Class Form1
 
     Dim TimeWhenTraffic As Date
 
+    Dim MusicPlayer As MusicPlayer
+    Dim TalkPlayer As TalkPlayer
+
+    Dim RadioControl As RadioControl
+
     'フォームスタート
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        '音楽プレイヤーをインスタンス
+        MusicPlayer = New MusicPlayer(Setting)
+
+        'トークプレイヤーをインスタンス
+        TalkPlayer = New TalkPlayer(Setting)
 
         'ロードクラスで各JSONを読み込む
-        Dim Load As New Load(Me)
+        Dim Load As New Load
 
-        Label10.Text = "ロード完了"
-        Label8.Text = MusicList.Count & "曲"
+        '基本設定を読み込む
+        Load.Load(Setting, "Settingファイル", "Setting.json")
+        '音楽情報を読み込む
+        Load.Load(MusicPlayer.MusicList, "音楽リスト", "List.json")
+        'トークパターンを読み込む
+        Load.Load(TalkPlayer.TalkList, "トークパターンファイル", "TalkList.json")
+        'キャラクター情報を読み込む
+        Load.Load(TalkPlayer.VoiceList, "ボイスリスト", "VoiceList.json")
+        '交通情報ファイルを読み込む
+        Load.Load(TrafficInfoList, "交通情報ファイル", "TrafficInfo.json")
 
-        Try
-            'リストビューに音楽を登録
-            For i As Integer = 0 To MusicList.Count - 1
-                Dim oListViewItem As ListViewItem = ListView1.Items.Add(MusicList(i).Title)
-                oListViewItem.SubItems.Add(MusicList(i).Artist)
-                oListViewItem.SubItems.Add(MusicList(i).Type)
-                oListViewItem.Tag = MusicList(i)
-            Next
+        'ラジオコントロールをインスタンス
+        RadioControl = New RadioControl(Setting, MusicPlayer, TalkPlayer)
 
-            'リストビューのカラムサイズを調整
-            ListView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize)
+        RadioControl.InfoText = "ロード完了"
+        Label8.Text = MusicPlayer.MusicList.Count & "曲"
 
-        Catch ex As IO.FileNotFoundException
-            '音楽情報ファイルがなければ、そのまま進行
-        End Try
+        'リストビューに音楽を登録
+        For Each oMusic As Music In MusicPlayer.MusicList
+            Dim oListViewItem As ListViewItem = ListView1.Items.Add(oMusic.Title)
+            oListViewItem.SubItems.Add(oMusic.Artist)
+            oListViewItem.SubItems.Add(oMusic.Type)
+            oListViewItem.Tag = oMusic
+        Next
+
+        'リストビューのカラムサイズを調整
+        ListView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize)
 
     End Sub
 
 
 
+    '再生or一時停止ボタン
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
-        If Wo Is Nothing OrElse SelectMusic Is Nothing Then
+        If MusicPlayer.SelectMusic Is Nothing Then
+
+            RadioControl.MusicChange()
+
             Button1.Text = "一時停止"
-            '次の曲を再生
-            MusicChange()
-
-        ElseIf Wo.PlaybackState = PlaybackState.Playing Then
-            Button1.Text = "再開"
-            Wo.Stop()
-
-            If Wo2 IsNot Nothing Then
-                Wo2.Stop()
-            End If
 
         Else
+            Button1.Text = MusicPlayer.PalyOrStop()
 
-            If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
-                MusicLength = MusicReader.TotalTime.TotalSeconds
-            Else
-                MusicLength = SelectMusic.EndingTime
-            End If
-
-            Button1.Text = "一時停止"
-            Wo.Play()
-
-            If Wo2 IsNot Nothing Then
-                Wo2.Play()
-            End If
         End If
+
+
+
+
+
+        NUD_StartTime.Value = MusicPlayer.SelectMusic.StartTime
+        NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
+        NUD_IntroTime.Value = MusicPlayer.SelectMusic.IntroTime
+        NUD_OutroTime.Value = MusicPlayer.SelectMusic.OutroTime
+        NUD_IntroMaxLength.Value = MusicPlayer.SelectMusic.IntroMaxLength
+
+        Label8.Text = "Gein : " & MusicPlayer.SelectMusic.Gein
+
+        'Timer1.Start()
+
+        Label1.Refresh()
+
+
+
 
     End Sub
 
@@ -121,153 +142,15 @@ Public Class Form1
 
     '曲をチェンジする
     Public Overloads Sub MusicChange()
+        RadioControl.MusicChange()
 
-        '次の曲を選曲
-        Dim i As Integer
-        Do
-            '次の曲を選ぶ乱数を設定
-            i = Rnd.Next(0, MusicList.Count)
-            Dim IsExiter As Boolean
+        NUD_StartTime.Value = MusicPlayer.SelectMusic.StartTime
+        NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
+        NUD_IntroTime.Value = MusicPlayer.SelectMusic.IntroTime
+        NUD_OutroTime.Value = MusicPlayer.SelectMusic.OutroTime
+        NUD_IntroMaxLength.Value = MusicPlayer.SelectMusic.IntroMaxLength
 
-            '前曲がNothingか、同じ曲では無い場合
-            If SelectMusic Is Nothing OrElse Not MusicList(i).FileName = SelectMusic.FileName Then
-                IsExiter = True
-            ElseIf MusicList.Count = 1 Then
-                IsExiter = True
-            End If
-
-            If GenreCount >= Setting.JingleFrequency AndAlso SelectMusic.TypeEnum = Music.WaveType.Music Then
-                If MusicList(i).TypeEnum = Music.WaveType.Jingle OrElse MusicList.ExistsType(Music.WaveType.Jingle) = False Then
-                    IsExiter = True
-                    GenreCount = 0
-                Else
-                    IsExiter = False
-                End If
-            ElseIf GenreCount >= 1 AndAlso SelectMusic.TypeEnum = Music.WaveType.Jingle Then
-                If MusicList(i).TypeEnum = Music.WaveType.Music Then
-                    IsExiter = True
-                    GenreCount = 0
-                Else
-                    IsExiter = False
-                End If
-            ElseIf SelectMusic.TypeEnum = Music.WaveType.Traffic Then
-                If MusicList(i).TypeEnum = Music.WaveType.Music Then
-                    IsExiter = True
-                    GenreCount = 0
-                Else
-                    IsExiter = False
-                End If
-            End If
-
-            If IsExiter Then
-                MusicChange(MusicList(i))
-                Exit Do
-            End If
-
-        Loop
-
-
-
-    End Sub
-
-
-    Public Overloads Sub MusicChange(music As Music)
-        '前の曲が登録されていれば
-        If Wo IsNot Nothing Then
-            '演奏を終了し破棄する
-            Wo.Stop()
-            Wo.Dispose()
-            '監視タイマーを止める
-            Timer1.Stop()
-
-            Label10.Text = ""
-        End If
-
-        '選択した曲を登録する
-        SelectMusic = music
-
-        'プレイヤーを召喚
-        Wo = New WaveOut
-
-        Try
-            'パスから曲を読み込み
-            MusicReader = New AudioFileReader(SelectMusic.FileNameFull)
-        Catch ex As IO.FileNotFoundException
-            '音楽を再生中ならば停止
-            If Wo IsNot Nothing Then
-                Wo.Stop()
-            End If
-
-            '曲の選択を解除
-            SelectMusic = Nothing
-
-            'ジャンル再生カウントをリセット
-            GenreCount = 0
-
-            'タイトルテロップを描画
-            Label1.Refresh()
-
-            'メッセージを表示
-            MessageBox.Show("音楽ファイルが見つかりませんでした", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
-
-            Exit Sub
-        End Try
-
-
-        MusicPlay()
-
-    End Sub
-
-
-
-    Private Sub MusicPlay()
-
-        If Setting.Gein OrElse SelectMusic.Gein = 0 Then
-            'ゲイン値を計算
-            Dim Gain = New WeighingGain
-            MusicReader.Volume = Gain.WeingingGein(SelectMusic.FileNameFull)
-
-            SelectMusic.Gein = MusicReader.Volume
-        Else
-            MusicReader.Volume = SelectMusic.Gein
-        End If
-
-
-        Label8.Text = "Gein : " & SelectMusic.Gein
-
-
-        OffsetSample = New OffsetSampleProvider(MusicReader)
-        volumeProvider = New VolumeSampleProvider(OffsetSample)
-
-        '曲の開始時間を設定
-        OffsetSample.SkipOver = TimeSpan.FromSeconds(SelectMusic.StartTime)
-
-        Wo.Init(MusicReader)
-        Wo.Init(volumeProvider)
-
-        'プレーヤーを再生
-        Wo.Play()
-
-
-
-
-        '曲の終了位置を設定
-        If SelectMusic.EndingTime = 0 OrElse CheckBox1.Checked OrElse SelectMusic.TypeEnum = Music.WaveType.Traffic Then
-            MusicLength = MusicReader.TotalTime.TotalSeconds
-        Else
-            OffsetSample.Take = TimeSpan.FromSeconds(SelectMusic.EndingTime)
-            MusicLength = SelectMusic.EndingTime
-        End If
-
-        NUD_StartTime.Value = SelectMusic.StartTime
-        NUD_EndingTime.Value = SelectMusic.EndingTime
-        NUD_IntroTime.Value = SelectMusic.IntroTime
-        NUD_OutroTime.Value = SelectMusic.OutroTime
-        NUD_IntroMaxLength.Value = SelectMusic.IntroMaxLength
-
-        GenreCount += 1
-
-
+        Label8.Text = "Gein : " & MusicPlayer.SelectMusic.Gein
         Button1.Text = "一時停止"
 
         'タイトルテロップを描画
@@ -275,432 +158,43 @@ Public Class Form1
 
         '監視タイマーを動かす
         Timer1.Start()
-
-
-
-
-
     End Sub
-
-
-
 
 
     '監視タイマー
-    Private Async Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        Dim TimeCount As Integer = Int(MusicReader.CurrentTime.TotalSeconds)
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        '定時確認メソッドを起動
+        RadioControl.Tick()
 
-        Dim Count As Integer
+        'トークテキストを更新
+        Label10.Text = RadioControl.InfoText
 
-        If Wo Is Nothing OrElse Wo.PlaybackState = PlaybackState.Paused Then
-            Exit Sub
-        End If
-
-        'イントロトークの時間が来たら喋る
-        If TimeCount = SelectMusic.IntroTime Then
-
-            'トークリストが無ければ、なにもしない
-            If TalkList Is Nothing OrElse TalkList.Count = 0 Then
-                Label10.Text = "トークパターンが読み込まれていません"
-                Exit Sub
-            End If
-
-            'ボイスリストが無ければ、なにもしない
-            If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
-                Label10.Text = "ボイスリストが読み込まれていません"
-                Exit Sub
-            End If
-
-            '使用許可があるボイスが居ない場合、なにもしない
-            For Each oVoice As VoiceCharacter In VoiceList
-                Count += CInt(oVoice.Use)
-            Next
-
-            If Count = 0 Then
-                Label10.Text = "ボイスが選択されていません"
-                Exit Sub
-            End If
-
-            '選曲中のタイプが音楽ならば
-            If SelectMusic.TypeEnum = Music.WaveType.Music Then
-
-                Dim oTalk As Talk
-                Dim Tx As String 'テロップ表示用
-                Dim Scenario As String 'スピーク用
-
-                'DJを選択
-Scenario1:      Dim SelectedVoice As Integer
-
-                '使用許可があるボイスが出るまで抽選
-                Do
-                    SelectedVoice = Rnd.Next(0, VoiceList.Count)
-
-                    If VoiceList(SelectedVoice).Use Then
-                        Exit Do
-                    End If
-                Loop
-
-                Do
-                    '台本を抽選
-                    oTalk = TalkList(Rnd.Next(0, TalkList.Count))
-
-                    'イントロ用なら
-                    If oTalk.TypeEnum = Talk.TalkType.Intro Then
-
-                        '時間が対応していたら、Doを出る
-                        If oTalk.FeelingTime(Now.Hour) Then
-                            Exit Do
-                        End If
-                    End If
-                Loop
-
-                '台本を入力
-                Tx = oTalk.Text
-                Scenario = oTalk.Text
-
-                'タイトルとアーティストを置き換え
-                If SelectMusic.ArtistSort Is Nothing OrElse SelectMusic.ArtistSort = "" Then
-                    Scenario = Scenario.Replace("[Artist]", SelectMusic.Artist)
-                Else
-                    Scenario = Scenario.Replace("[Artist]", SelectMusic.ArtistSort)
-                End If
-
-                If SelectMusic.TitleSort Is Nothing OrElse SelectMusic.TitleSort = "" Then
-                    Scenario = Scenario.Replace("[Title]", SelectMusic.Title)
-                Else
-                    Scenario = Scenario.Replace("[Title]", SelectMusic.TitleSort)
-                End If
-
-                '自己紹介文を登録
-                If Setting.MySelf Then
-                    Scenario = VoiceList(SelectedVoice).MySelf & "。" & Scenario
-                End If
-
-                'もしトーク文が長過ぎたら、再抽選
-                If SelectMusic.IntroMaxLength > 0 AndAlso Scenario.Length > SelectMusic.IntroMaxLength Then
-                    GoTo Scenario1
-                End If
-
-                Tx = Tx.Replace("[Artist]", SelectMusic.Artist)
-                Tx = Tx.Replace("[Title]", SelectMusic.Title)
-
-                Label10.Text = Tx & vbCrLf
-                Label10.Text &= "by. " & VoiceList(SelectedVoice).Name & vbCrLf & "(" & Tx.Length & "文字" & ") (" & SelectMusic.PlayCount + 1 & "回目)"
-
-
-
-                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
-            End If
-
-        End If
-
-        'アウトロトークの時間が来たら喋る
-        If TimeCount = (MusicLength - SelectMusic.OutroTime) AndAlso OnTalk = False Then
-
-            'トークリストが無ければ、なにもしない
-            If TalkList Is Nothing OrElse TalkList.Count = 0 Then
-                Label10.Text = "トークパターンが読み込まれていません"
-                Exit Sub
-            End If
-
-            'ボイスリストが無ければ、なにもしない
-            If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
-                Label10.Text = "ボイスリストが読み込まれていません"
-                Exit Sub
-            End If
-
-            '使用許可があるボイスが居ない場合、なにもしない
-            For Each oVoice As VoiceCharacter In VoiceList
-                Count += CInt(oVoice.Use)
-            Next
-
-            If Count = 0 Then
-                Label10.Text = "ボイスが選択されていません"
-                Exit Sub
-            End If
-
-
-
-            If SelectMusic.TypeEnum = Music.WaveType.Music Then
-
-                Dim oTalk As Talk
-                Dim Tx As String 'テロップ表示用
-                Dim Scenario As String 'スピーク用
-
-                'DJを選択
-                Dim SelectedVoice As Integer
-
-                '使用許可があるボイスが出るまで抽選
-                Do
-                    SelectedVoice = Rnd.Next(0, VoiceList.Count)
-
-                    If VoiceList(SelectedVoice).Use Then
-                        Exit Do
-                    End If
-                Loop
-
-                Do
-                    '台本を抽選
-                    oTalk = TalkList(Rnd.Next(0, TalkList.Count))
-
-                    'アウトロ用ならDoを出る
-                    If oTalk.TypeEnum = Talk.TalkType.Outro Then
-                        '時間が対応していたら、Doを出る
-                        If oTalk.FeelingTime(Now.Hour) Then
-                            Exit Do
-                        End If
-                    End If
-                Loop
-
-                '台本を入力
-                Tx = oTalk.Text
-                Scenario = oTalk.Text
-
-                'タイトルとアーティストを置き換え
-                If SelectMusic.ArtistSort Is Nothing OrElse SelectMusic.ArtistSort = "" Then
-                    Scenario = Scenario.Replace("[Artist]", SelectMusic.Artist)
-                Else
-                    Scenario = Scenario.Replace("[Artist]", SelectMusic.ArtistSort)
-                End If
-
-                If SelectMusic.TitleSort Is Nothing OrElse SelectMusic.TitleSort = "" Then
-                    Scenario = Scenario.Replace("[Title]", SelectMusic.Title)
-                Else
-                    Scenario = Scenario.Replace("[Title]", SelectMusic.TitleSort)
-                End If
-
-                Tx = Tx.Replace("[Artist]", SelectMusic.Artist)
-                Tx = Tx.Replace("[Title]", SelectMusic.Title)
-
-                Label10.Text = Tx & vbCrLf
-                Label10.Text &= "by. " & VoiceList(SelectedVoice).Name & vbCrLf & "(" & Tx.Length & "文字" & ") (" & SelectMusic.PlayCount + 1 & "回目)"
-
-                OnTalk = True
-
-                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
-
-            ElseIf SelectMusic.TypeEnum = Music.WaveType.Jingle Then
-                'タイプがジングルならば
-
-                'ボイスリストが無ければ、なにもしない
-                If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
-                    Label10.Text = "ボイスリストが読み込まれていません"
-                    Exit Sub
-                End If
-
-                '使用許可があるボイスが居ない場合、なにもしない
-                For Each oVoice As VoiceCharacter In VoiceList
-                    Count += CInt(oVoice.Use)
-                Next
-
-                If Count = 0 Then
-                    Label10.Text = "ボイスが選択されていません"
-                    Exit Sub
-                End If
-
-                Dim oTalk As Talk
-                Dim Tx As String 'テロップ表示用
-                Dim Scenario As String 'スピーク用
-
-                'DJを選択
-                Dim SelectedVoice As Integer
-
-                '使用許可があるボイスが出るまで抽選
-                Do
-                    SelectedVoice = Rnd.Next(0, VoiceList.Count)
-
-                    If VoiceList(SelectedVoice).Use Then
-                        Exit Do
-                    End If
-                Loop
-
-                Do
-                    '台本を抽選
-                    oTalk = TalkList(Rnd.Next(0, TalkList.Count))
-
-                    'コール用ならDoを出る
-                    If oTalk.TypeEnum = Talk.TalkType.Call Then
-                        Exit Do
-                    End If
-                Loop
-
-                '台本を入力
-                Tx = oTalk.Text
-                Scenario = oTalk.Text
-
-                Tx = Tx.Replace("[RadioName]", Setting.RadioName)
-                Scenario = Scenario.Replace("[RadioName]", Setting.RadioName)
-
-                Label10.Text = Tx & vbCrLf
-                Label10.Text &= "by. " & VoiceList(SelectedVoice).Name
-
-                Await VoicevoxTalk(Scenario, VoiceList(SelectedVoice).Id, False)
-
-            End If
-
-        End If
-
-
-
-
-
-
-        '曲が終了する3秒前ならば
-        Select Case TimeCount
-            Case Is >= (MusicLength - 3)
-
-                If SelectMusic.TypeEnum <> Music.WaveType.Traffic Then
-                    'タイマーを止める
-                    Timer1.Stop()
-                    '再生カウントを追加
-                    SelectMusic.PlayCount += 1
-                    'トーク中を解除
-                    OnTalk = False
-                    '音量をフェードアウトする
-                    BackgroundWorker1.RunWorkerAsync()
-                End If
-
-        End Select
-
-
+        '情報フォームを再描画
         Label1.Refresh()
 
-
-
-
-
-
     End Sub
-
-
-
-
-    'フェードアウト処理
-    Private Sub BackgroundWorker1_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorker1.DoWork
-        Dim i As Integer
-        For i = 1 To 10
-            '1秒間待機する（時間のかかる処理があるものとする）
-            System.Threading.Thread.Sleep(200)
-
-            'ProgressChangedイベントハンドラを呼び出し、
-            'コントロールの表示を変更する
-            BackgroundWorker1.ReportProgress(i)
-        Next
-    End Sub
-
-    Private Sub BackgroundWorker1_ProgressChanged(sender As Object, e As ProgressChangedEventArgs) Handles BackgroundWorker1.ProgressChanged
-        MusicReader.Volume = Math.Max(0, MusicReader.Volume - 0.1)
-    End Sub
-
-    Private Sub BackgroundWorker1_RunWorkerCompleted(sender As Object, e As RunWorkerCompletedEventArgs) Handles BackgroundWorker1.RunWorkerCompleted
-
-
-        If SelectMusic IsNot Nothing AndAlso MusicList.ExistsType(Music.WaveType.Traffic) AndAlso Setting.Traffic Then
-            Select Case SelectMusic.TypeEnum
-                Case Music.WaveType.Jingle
-
-
-                    If TimeWhenTraffic.AddMinutes(Setting.TrafficInterval) < Now Then
-
-                        'ボイスリストが無ければ
-                        If VoiceList Is Nothing OrElse VoiceList.Count = 0 Then
-                            '次の曲へ
-                            MusicChange()
-                            Exit Sub
-                        End If
-
-                        Dim Count As Integer
-
-                        'MCの使用許可があるボイスが居ない場合
-                        For Each oVoice As VoiceCharacter In VoiceList
-                            Count += CInt(oVoice.TrafficMcUse)
-                        Next
-
-                        If Count = 0 Then
-                            '次の曲へ
-                            MusicChange()
-                            Exit Sub
-                        End If
-
-                        Count = 0
-
-                        '道路交通情報センターの使用許可があるボイスが居ない場合
-                        For Each oVoice As VoiceCharacter In VoiceList
-                            Count += CInt(oVoice.TrafficCenterUse)
-                        Next
-
-                        If Count = 0 Then
-                            '次の曲へ
-                            MusicChange()
-                            Exit Sub
-                        End If
-
-                        'VOICEVOXが起動していない時
-                        If Diagnostics.Process.GetProcessesByName("VOICEVOX").Length = 0 Then
-                            '次の曲へ
-                            MusicChange()
-                        Else
-                            '交通情報を流す
-                            TrafficInfo()
-                        End If
-                    Else
-                        '次の曲へ
-                        MusicChange()
-                    End If
-
-                Case Else
-                    '次の曲へ
-                    MusicChange()
-            End Select
-
-        Else
-            '次の曲へ
-            MusicChange()
-
-        End If
-
-
-
-
-
-
-
-    End Sub
-
-
-
-    '文字列をVOICEVOXに喋らせる
-    'https://github.com/TORISOUP/VoicevoxClientSharp
-
-
-    Private Async Function VoicevoxTalk(Str As String, Voice As Integer, OnFull As Boolean) As Task
-
-        Dim bt As Byte() = Await VoicevoxCreate(Str, Voice)
-
-        Await ByteArrayPlay（bt, OnFull)
-    End Function
-
 
 
 
 
     'VOICEVOXで文字列からwavバイト配列を生成
     Private Async Function VoicevoxCreate(Str As String, Voice As Integer) As Task(Of Byte())
-        Dim synthesizer = New VoicevoxSynthesizer()
+
+        Dim Bt As Byte()
 
         Try
-            Await synthesizer.InitializeStyleAsync(Voice)
-
-            Dim result = Await synthesizer.SynthesizeSpeechAsync(Voice, Str,,,, 1.5)
+            Bt = Await TalkPlayer.TextByteCreate(Str, Voice)
 
             'バイト配列を取り出す
-            Return result.Wav
+            Return Bt
 
         Catch ex As Net.Http.HttpRequestException
             Label10.Text = "VOICEVOX本体が起動していません"
 
             Return Nothing
+
         End Try
+
     End Function
 
 
@@ -710,21 +204,11 @@ Scenario1:      Dim SelectedVoice As Integer
     'Wavバイト配列を再生する
     Private Async Function ByteArrayPlay(bt As Byte(), OnFull As Boolean) As Task
 
-        If bt Is Nothing Then Exit Function
 
-        Dim Reader As New WaveFileReader(New MemoryStream(bt))
+        Await TalkPlayer.ByteArrayPlay(bt, OnFull)
 
-        'プレイヤーを召喚
-        Wo2 = New WaveOut
 
-        Wo2.Init(Reader)
-        Wo2.Play()
 
-        If OnFull Then
-            While Wo2.PlaybackState = PlaybackState.Playing
-                Await Task.Delay(100)
-            End While
-        End If
     End Function
 
 
@@ -756,9 +240,9 @@ Scenario1:      Dim SelectedVoice As Integer
         '基本設定を保存する
         Save.Save(Setting, "Setting.json")
         '音楽情報を保存する
-        Save.Save(MusicList, "List.json")
+        Save.Save(MusicPlayer.MusicList, "List.json")
         'キャラクター情報を保存する
-        Save.Save(VoiceList, "VoiceList.json")
+        Save.Save(TalkPlayer.VoiceList, "VoiceList.json")
     End Sub
 
 
@@ -770,6 +254,8 @@ Scenario1:      Dim SelectedVoice As Integer
     '音楽ファイルがドロップされた時
     Private Sub Label2_DragDrop(sender As Object, e As DragEventArgs) Handles Label2.DragDrop
         Dim InNewMusic As Boolean
+
+        Dim SelectMusic As Music
 
         'コントロール内にドロップされたとき実行される
         'ドロップされたすべてのファイル名を取得する
@@ -785,7 +271,7 @@ Scenario1:      Dim SelectedVoice As Integer
                 Case ".flac", ".mp3", ".mp4", ".wav", ".m4a"
 
                     'すでに同じファイルが登録されていないか確認
-                    For Each oMu As Music In MusicList
+                    For Each oMu As Music In MusicPlayer.MusicList
                         '登録されていたら、このファイルを解析しない
                         If oMu.FileName = FileName(i) Then
                             GoTo L1
@@ -825,7 +311,7 @@ Scenario1:      Dim SelectedVoice As Integer
                     oMusic.ArtistSort = f.GetDetailsOf(item, 241)
 
 
-                    MusicList.Add(oMusic)
+                    MusicPlayer.MusicList.Add(oMusic)
 
 
                     'リストビューに追加
@@ -846,7 +332,7 @@ L1:     Next
         If InNewMusic Then
 
 
-            MusicChange(SelectMusic)
+            MusicPlayer.Change(SelectMusic)
         End If
 
     End Sub
@@ -854,39 +340,41 @@ L1:     Next
     'タイミング調整の値を変更する
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button50.Click
 
-        SelectMusic.StartTime = CInt(NUD_StartTime.Value)
-        SelectMusic.EndingTime = CInt(NUD_EndingTime.Value)
-        SelectMusic.IntroTime = CInt(NUD_IntroTime.Value)
-        SelectMusic.OutroTime = CInt(NUD_OutroTime.Value)
-        SelectMusic.IntroMaxLength = CInt(NUD_IntroMaxLength.Value)
+        MusicPlayer.SelectMusic.StartTime = CInt(NUD_StartTime.Value)
+        MusicPlayer.SelectMusic.EndingTime = CInt(NUD_EndingTime.Value)
+        MusicPlayer.SelectMusic.IntroTime = CInt(NUD_IntroTime.Value)
+        MusicPlayer.SelectMusic.OutroTime = CInt(NUD_OutroTime.Value)
+        MusicPlayer.SelectMusic.IntroMaxLength = CInt(NUD_IntroMaxLength.Value)
 
-        If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
-            MusicLength = MusicReader.TotalTime.TotalSeconds
+        If Setting.FullChorus OrElse MusicPlayer.SelectMusic.EndingTime = 0 Then
+            MusicLength = MusicPlayer.MusicReader.TotalTime.TotalSeconds
         Else
             MusicLength = CInt(NUD_EndingTime.Value)
         End If
 
     End Sub
 
+    '10秒進める
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button3.Click
-
-        MusicReader.CurrentTime += TimeSpan.FromSeconds(10)
-
+        MusicPlayer.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds + 10)
     End Sub
 
+    '10秒戻す
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        MusicReader.CurrentTime -= TimeSpan.FromSeconds(10)
+        MusicPlayer.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds - 10)
     End Sub
 
+
+    '「この時間！」ボタン
     Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
 
-        SelectMusic.EndingTime = MusicReader.CurrentTime.TotalSeconds + 10
+        MusicPlayer.SelectMusic.EndingTime = MusicPlayer.MusicReader.CurrentTime.TotalSeconds + 10
 
-        NUD_EndingTime.Value = SelectMusic.EndingTime
+        NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
 
         'フルコーラス再生でない場合、曲の長さを設定
-        If CheckBox1.Checked = False AndAlso SelectMusic.EndingTime > 0 Then
-            MusicLength = SelectMusic.EndingTime
+        If Setting.FullChorus = False AndAlso MusicPlayer.SelectMusic.EndingTime > 0 Then
+            MusicPlayer.MusicLength = MusicPlayer.SelectMusic.EndingTime
         End If
 
     End Sub
@@ -894,72 +382,94 @@ L1:     Next
     '再生位置をラスト15秒前まで飛ばす
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button4.Click
 
-        '曲が再生していない場合、なにもしない
-        If Wo Is Nothing OrElse Wo.PlaybackState <> PlaybackState.Playing Then
-            Exit Sub
-        End If
+        '再生位置をラスト15秒前まで飛ばす
+        MusicPlayer.Skip(MusicPlayer.MusicLength - 15)
+
+        ''曲が再生していない場合、なにもしない
+        'If Wo Is Nothing OrElse Wo.PlaybackState <> PlaybackState.Playing Then
+        '    Exit Sub
+        'End If
+
+
+
+
 
         'トークプレイヤーがある場合
         If Wo2 IsNot Nothing Then
             Wo2.Stop()
         End If
 
-        '再生位置をラスト15秒前まで飛ばす
-        MusicSkip(MusicLength - 15)
+
     End Sub
 
 
-    '再生位置を動かすメソッド
-    Public Sub MusicSkip(Time As Integer)
-        '再生位置を指定
-        MusicReader.CurrentTime = TimeSpan.FromSeconds(Time)
-    End Sub
+    ''再生位置を動かすメソッド
+    'Public Sub MusicSkip(Time As Integer)
+    '    '再生位置を指定
+    '    MusicReader.CurrentTime = TimeSpan.FromSeconds(Time)
+    'End Sub
 
 
+    'フルコーラス設定を反転する
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
 
-        If Wo Is Nothing OrElse Not Wo.PlaybackState = PlaybackState.Playing Then
-            Exit Sub
-        End If
+        MusicPlayer.EndingTimeChange()
 
-        If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
-            MusicLength = MusicReader.TotalTime.TotalSeconds
-        Else
-            MusicLength = SelectMusic.EndingTime
-        End If
+        'If Wo Is Nothing OrElse Not Wo.PlaybackState = PlaybackState.Playing Then
+        '    Exit Sub
+        'End If
+
+        'If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
+        '    MusicLength = MusicReader.TotalTime.TotalSeconds
+        'Else
+        '    MusicLength = SelectMusic.EndingTime
+        'End If
     End Sub
 
 
     '音量バー
     Private Sub HScrollBar1_Scroll(sender As Object, e As ScrollEventArgs) Handles HScrollBar1.Scroll
-
-        If Wo IsNot Nothing Then
-            Wo.Volume = (e.NewValue / 100)
-        End If
-
+        MusicPlayer.Volume(e.NewValue)
     End Sub
 
+
+    '情報ラベルを再描画
     Private Sub Label1_Paint(sender As Object, e As PaintEventArgs) Handles Label1.Paint
 
-        If SelectMusic Is Nothing Then Exit Sub
-
-        e.Graphics.DrawString(SelectMusic.Title, Label1.Font, Brushes.LightPink, 0, 2)
-
-        e.Graphics.DrawString(SelectMusic.Artist, Label1.Font, Brushes.White, 0, 42)
 
 
 
 
+        If MusicPlayer.SelectMusic IsNot Nothing Then
+            e.Graphics.DrawString(MusicPlayer.SelectMusic.Title, Label1.Font, Brushes.LightPink, 0, 2)
+
+            e.Graphics.DrawString(MusicPlayer.SelectMusic.Artist, Label1.Font, Brushes.White, 0, 42)
+
+
+
+        End If
+
+
+
+
+
+        '文字描画位置を右寄せにする
         Dim sf As New StringFormat()
         sf.Alignment = StringAlignment.Far
 
+        '時刻表示枠を指定
         Dim TimeRectangle As New RectangleF(Label1.Width - 150, 2, 148, 42)
 
+        '現在の時刻を描画
         e.Graphics.DrawString(Format(Now, "HH:mm:ss"), Label1.Font, Brushes.White, TimeRectangle, sf)
 
-        Dim TimeCount As Integer = Int(MusicReader.CurrentTime.TotalSeconds)
-        TimeRectangle = New RectangleF(Label1.Width - 150, 42, 148, 42)
-        e.Graphics.DrawString(TimeCount, Label1.Font, Brushes.White, TimeRectangle, sf)
+        If MusicPlayer.SelectMusic IsNot Nothing Then
+            Dim TimeCount As Integer = Int(MusicPlayer.MusicReader.CurrentTime.TotalSeconds)
+            TimeRectangle = New RectangleF(Label1.Width - 150, 42, 148, 42)
+            e.Graphics.DrawString(TimeCount, Label1.Font, Brushes.White, TimeRectangle, sf)
+        End If
+
+
 
 
 
@@ -968,7 +478,7 @@ L1:     Next
 
 
 
-
+    'リストから再生
     Private Sub PlayToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PlayToolStripMenuItem.Click
 
         'トークプレイヤーがある場合
@@ -982,7 +492,24 @@ L1:     Next
 
 
 
-        MusicChange(ListView1.SelectedItems(0).Tag)
+        MusicPlayer.Change(ListView1.SelectedItems(0).Tag)
+
+
+
+        NUD_StartTime.Value = MusicPlayer.SelectMusic.StartTime
+        NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
+        NUD_IntroTime.Value = MusicPlayer.SelectMusic.IntroTime
+        NUD_OutroTime.Value = MusicPlayer.SelectMusic.OutroTime
+        NUD_IntroMaxLength.Value = MusicPlayer.SelectMusic.IntroMaxLength
+
+        Label8.Text = "Gein : " & MusicPlayer.SelectMusic.Gein
+        Button1.Text = "一時停止"
+
+        'タイトルテロップを描画
+        Label1.Refresh()
+
+        '監視タイマーを動かす
+        Timer1.Start()
     End Sub
 
 
@@ -994,7 +521,7 @@ L1:     Next
         ListView1.Sort()
 
 
-        MusicList.Sort()
+        MusicPlayer.MusicList.Sort()
 
     End Sub
 
@@ -1022,10 +549,10 @@ L1:     Next
             Wo2.Stop()
         End If
 
-        If Wo IsNot Nothing Then
-            Wo.Stop()
-            Wo.Dispose()
-        End If
+        'If Wo IsNot Nothing Then
+        '    Wo.Stop()
+        '    Wo.Dispose()
+        'End If
 
 
         Dim str As String = "「" & ListView1.SelectedItems(0).Text & "」を選択中" & vbCrLf
@@ -1034,9 +561,9 @@ L1:     Next
 
         If MessageBox.Show(str, Me.Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) = DialogResult.OK Then
 
-            Dim Num As Integer = MusicList.IndexOf(ListView1.SelectedItems(0).Tag)
+            Dim music As Integer = MusicPlayer.MusicList.IndexOf(ListView1.SelectedItems(0).Tag)
             '音楽リストから削除
-            MusicList.RemoveAt(Num)
+            MusicPlayer.MusicList.RemoveAt(music)
             'リストビューからも削除
             ListView1.SelectedItems(0).Remove()
         End If
@@ -1057,18 +584,20 @@ L1:     Next
         GroupBox1.Enabled = False
 
         '次の曲を選曲
-        Do
-            Dim i As Integer
+        MusicChange()
 
-            '次の曲を選ぶ乱数を設定
-            i = Rnd.Next(0, MusicList.Count)
+        'Do
+        '    Dim i As Integer
 
-            If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
-                MusicChange(MusicList(i))
-                Exit Do
-            End If
+        '    '次の曲を選ぶ乱数を設定
+        '    i = Rnd.Next(0, MusicList.Count)
 
-        Loop
+        '    If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
+        '        MusicChange(MusicList(i))
+        '        Exit Do
+        '    End If
+
+        'Loop
 
         'MCを選択
         Dim SelectedVoiceMC As VoiceCharacter
@@ -1186,6 +715,7 @@ L1:     Next
         MusicChange()
 
     End Sub
+
 End Class
 
 

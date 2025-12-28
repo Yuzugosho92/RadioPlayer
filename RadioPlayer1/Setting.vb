@@ -12,6 +12,9 @@
     'ゲインの再読み込み
     Public Property Gein As Boolean
 
+    'フルコーラス流すかどうか
+    Public Property FullChorus As Boolean
+
     '交通情報を挟むかどうか
     Public Property Traffic As Boolean = True
 

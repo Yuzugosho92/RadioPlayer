@@ -83,6 +83,7 @@ Partial Class Form1
         ' 
         ' Timer1
         ' 
+        Timer1.Enabled = True
         Timer1.Interval = 1000
         ' 
         ' BackgroundWorker1
@@ -438,7 +439,6 @@ Partial Class Form1
     End Sub
 
     Friend WithEvents Button1 As Button
-    Friend WithEvents Timer1 As Timer
     Friend WithEvents BackgroundWorker1 As System.ComponentModel.BackgroundWorker
     Friend WithEvents Label1 As Label
     Friend WithEvents Label2 As Label
@@ -476,5 +476,6 @@ Partial Class Form1
     Friend WithEvents Timer2 As Timer
     Friend WithEvents SettingToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Button5 As Button
+    Private WithEvents Timer1 As Timer
 
 End Class
