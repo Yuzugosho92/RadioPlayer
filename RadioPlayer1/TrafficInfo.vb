@@ -1,4 +1,5 @@
-﻿Imports NAudio.Wave.Asio
+﻿Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Button
+Imports NAudio.Wave.Asio
 
 Public Class TrafficInfo
 
@@ -30,21 +31,12 @@ Public Class TrafficInfo
 
     Public Async Sub Play()
 
-        '次の曲を選曲
-        'RadioControl.MusicChange()
-
-        'Do
-        '    Dim i As Integer
-
-        '    '次の曲を選ぶ乱数を設定
-        '    i = Rnd.Next(0, MusicList.Count)
-
-        '    If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
-        '        MusicChange(MusicList(i))
-        '        Exit Do
-        '    End If
-
-        'Loop
+        RadioControl.Owner.Button1.Enabled = False
+        RadioControl.Owner.Button2.Enabled = False
+        RadioControl.Owner.Button3.Enabled = False
+        RadioControl.Owner.Button4.Enabled = False
+        RadioControl.Owner.CheckBox1.Enabled = False
+        RadioControl.Owner.GroupBox1.Enabled = False
 
         'MCを選択
         Dim SelectedVoiceMC As VoiceCharacter
@@ -93,18 +85,16 @@ Public Class TrafficInfo
                                         End Sub)
 
 
-        ''テキストを表示
-        'Label10.Text = "By." & Scenario(0).Voice.Name & vbCrLf & Scenario(0).Text
+        'テキストを表示
+        RadioControl.InfoText = "By." & Scenario(0).Voice.Name & vbCrLf & Scenario(0).Text
+
+        'ラジオコントロールクラスに、情報文を変更したことを伝える
+        RadioControl.InfoTextChanged()
+
         Await TalkPlayer.ByteArrayPlay(Bt(0), True)
 
         For i As Integer = 1 To Scenario.Count - 1
-            ''テキストを表示
-
-
-
-
-
-
+            'テキストを表示
             RadioControl.InfoText = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
 
             'ラジオコントロールクラスに、情報文を変更したことを伝える
@@ -137,10 +127,12 @@ Public Class TrafficInfo
         '次の曲へ
         RadioControl.MusicChange()
 
-
-
-
-
+        RadioControl.Owner.Button1.Enabled = True
+        RadioControl.Owner.Button2.Enabled = True
+        RadioControl.Owner.Button3.Enabled = True
+        RadioControl.Owner.Button4.Enabled = True
+        RadioControl.Owner.CheckBox1.Enabled = True
+        RadioControl.Owner.GroupBox1.Enabled = True
 
     End Sub
 

@@ -3,7 +3,20 @@ Imports System.Text.Json
 
 '各設定をJSONに保存するクラス
 Public Class Save
-    Public Sub Save(Cls As Object, FileName As String)
+
+    Public Sub Save(RadioControl As RadioControl)
+
+        '基本設定を保存する
+        SaveSolo(RadioControl.Setting, "Setting.json")
+        '音楽情報を保存する
+        SaveSolo(RadioControl.MusicPlayer.MusicList, "List.json")
+        'キャラクター情報を保存する
+        SaveSolo(RadioControl.TalkPlayer.VoiceList, "VoiceList.json")
+
+    End Sub
+
+
+    Public Sub SaveSolo(Cls As Object, FileName As String)
         'もしクラスがNothingなら、なにもしない
         If Cls Is Nothing Then
             Return

@@ -2,11 +2,13 @@
 
 Public Class Form4
 
+    Dim RadioControl As RadioControl
     Dim Setting As Setting
 
-    Public Overloads Function ShowDialog(Owner As IWin32Window, ByRef Setting As Setting)
+    Public Overloads Function ShowDialog(Owner As IWin32Window, RadioControl As RadioControl)
 
-        Me.Setting = Setting
+        Me.RadioControl = RadioControl
+        Me.Setting = RadioControl.Setting
 
         '全般
         'ラジオ局名
@@ -28,11 +30,6 @@ Public Class Form4
 
         '放送間隔
         NumericUpDown1.Value = Setting.TrafficInterval
-
-
-
-
-
 
         Return Me.ShowDialog(Owner)
 
@@ -73,17 +70,17 @@ Public Class Form4
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'サブフォームを起動
         Dim F As New Form3
-        F.ShowDialog(Owner, DirectCast(Owner, Form1).VoiceList, VoiceCharacter.TalkType.Mc)
+        F.ShowDialog(Owner, RadioControl, VoiceCharacter.TalkType.Mc)
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         'サブフォームを起動
         Dim F As New Form3
-        F.ShowDialog(Owner, DirectCast(Owner, Form1).VoiceList, VoiceCharacter.TalkType.TrafficMc)
+        F.ShowDialog(Owner, RadioControl, VoiceCharacter.TalkType.TrafficMc)
     End Sub
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         'サブフォームを起動
         Dim F As New Form3
-        F.ShowDialog(Owner, DirectCast(Owner, Form1).VoiceList, VoiceCharacter.TalkType.TrafficCenter)
+        F.ShowDialog(Owner, RadioControl, VoiceCharacter.TalkType.TrafficCenter)
     End Sub
 End Class

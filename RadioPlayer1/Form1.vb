@@ -1,68 +1,22 @@
-﻿Imports System.ComponentModel
-Imports System.Diagnostics.Eventing
-Imports NAudio.Wave
-Imports NAudio.Wave.SampleProviders
-Imports System.Text.Json
-Imports System.Runtime.InteropServices.Marshalling
-Imports VoicevoxClientSharp
-Imports Shell32
-Imports System.IO
-Imports System.Runtime.InteropServices
-Imports VoicevoxClientSharp.ApiClient
-Imports System.Net.Mime.MediaTypeNames
-Imports NAudio.CoreAudioApi
-Imports System.Reflection.Emit
-Imports System.Drawing.Text
-Imports System.Diagnostics.CodeAnalysis
-Imports System.Windows
-Imports System.Threading
-Imports System.Windows.Forms.VisualStyles
-
+﻿Imports NAudio.Wave
 
 Public Class Form1
-
-    Public TalkList As New List(Of Talk)
-    Public VoiceList As New List(Of VoiceCharacter)
-
-    Public Setting As New Setting
-
-    Dim Rnd As New Random
-
-    Public TrafficInfo As TrafficInfo
-
-    Dim TimeWhenTraffic As Date
+    Dim WithEvents RadioControl As RadioControl
 
     Dim MusicPlayer As MusicPlayer
     Dim TalkPlayer As TalkPlayer
 
-    Dim WithEvents RadioControl As RadioControl
-
     'フォームスタート
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        '音楽プレイヤーをインスタンス
-        MusicPlayer = New MusicPlayer(Setting)
+        'ラジオコントロールをインスタンス
+        RadioControl = New RadioControl(Me)
 
-        'トークプレイヤーをインスタンス
-        TalkPlayer = New TalkPlayer(Setting)
+        MusicPlayer = RadioControl.MusicPlayer
+        TalkPlayer = RadioControl.TalkPlayer
 
         'ロードクラスで各JSONを読み込む
         Dim Load As New Load
-
-        '基本設定を読み込む
-        Load.Load(Setting, "Settingファイル", "Setting.json")
-        '音楽情報を読み込む
-        Load.Load(MusicPlayer.MusicList, "音楽リスト", "List.json")
-        'トークパターンを読み込む
-        Load.Load(TalkPlayer.TalkList, "トークパターンファイル", "TalkList.json")
-        'キャラクター情報を読み込む
-        Load.Load(TalkPlayer.VoiceList, "ボイスリスト", "VoiceList.json")
-
-
-        'ラジオコントロールをインスタンス
-        RadioControl = New RadioControl(Setting, MusicPlayer, TalkPlayer)
-
-        '交通情報ファイルを読み込む
-        Load.Load(RadioControl.TrafficInfo.TIList, "交通情報ファイル", "TrafficInfo.json")
+        Load.Load(RadioControl)
 
         RadioControl.InfoText = "ロード完了"
         Label8.Text = MusicPlayer.MusicList.Count & "曲"
@@ -80,6 +34,13 @@ Public Class Form1
 
     End Sub
 
+
+    'ソフトを終了するとき
+    Private Sub Form1_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
+        '各設定を保存する
+        Dim Save As New Save
+        Save.Save(RadioControl)
+    End Sub
 
 
     '再生or一時停止ボタン
@@ -130,55 +91,7 @@ Public Class Form1
     End Sub
 
 
-    'VOICEVOXで文字列からwavバイト配列を生成
-    Private Async Function VoicevoxCreate(Str As String, Voice As Integer) As Task(Of Byte())
-
-        Dim Bt As Byte()
-
-        Try
-            Bt = Await TalkPlayer.TextByteCreate(Str, Voice)
-
-            'バイト配列を取り出す
-            Return Bt
-
-        Catch ex As Net.Http.HttpRequestException
-            Label10.Text = "VOICEVOX本体が起動していません"
-
-            Return Nothing
-
-        End Try
-
-    End Function
-
-
-
-
-
-    'Wavバイト配列を再生する
-    Private Async Function ByteArrayPlay(bt As Byte(), OnFull As Boolean) As Task
-
-
-        Await TalkPlayer.ByteArrayPlay(bt, OnFull)
-
-
-
-    End Function
-
-
-    'ソフトを終了するとき
-    Private Sub Form1_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
-        '保存作業をするクラスをインスタンス
-        Dim Save As New Save
-
-        '基本設定を保存する
-        Save.Save(Setting, "Setting.json")
-        '音楽情報を保存する
-        Save.Save(MusicPlayer.MusicList, "List.json")
-        'キャラクター情報を保存する
-        Save.Save(TalkPlayer.VoiceList, "VoiceList.json")
-    End Sub
-
-
+    '音楽ファイルがドラッグされた時
     Private Sub Label2_DragEnter(sender As Object, e As DragEventArgs) Handles Label2.DragEnter
         e.Effect = DragDropEffects.Copy
     End Sub
@@ -186,9 +99,7 @@ Public Class Form1
 
     '音楽ファイルがドロップされた時
     Private Sub Label2_DragDrop(sender As Object, e As DragEventArgs) Handles Label2.DragDrop
-        Dim InNewMusic As Boolean
-
-        Dim SelectMusic As Music
+        Dim InNewMusic As Music = Nothing
 
         'コントロール内にドロップされたとき実行される
         'ドロップされたすべてのファイル名を取得する
@@ -197,75 +108,26 @@ Public Class Form1
         '音楽ファイルを解析
         For i As Integer = 0 To FileName.Length - 1
 
-            Dim Extension = Path.GetExtension(FileName(i)).ToLower
+            Dim oMusic = MusicPlayer.Add(FileName(i))
 
-            '音楽ファイルならば、解析作業に入る
-            Select Case Extension
-                Case ".flac", ".mp3", ".mp4", ".wav", ".m4a"
+            If oMusic IsNot Nothing Then
 
-                    'すでに同じファイルが登録されていないか確認
-                    For Each oMu As Music In MusicPlayer.MusicList
-                        '登録されていたら、このファイルを解析しない
-                        If oMu.FileName = FileName(i) Then
-                            GoTo L1
-                        End If
-                    Next
+                'リストビューに追加
+                Dim oListViewItem As ListViewItem = ListView1.Items.Add(oMusic.Title)
 
-                    '新しい音楽データ箱を作成
-                    Dim oMusic As New Music
+                oListViewItem.SubItems.Add(oMusic.Artist)
+                oListViewItem.SubItems.Add(oMusic.Type)
+                oListViewItem.Tag = oMusic
 
-                    '各種データを登録
-                    oMusic.Type = "Music"
-                    oMusic.FileName = FileName(i)
-                    oMusic.StartTime = 0
+                If InNewMusic Is Nothing Then
+                    InNewMusic = oMusic
+                End If
+            End If
+        Next
 
-                    '音楽ファイルのタグを開く
-                    Dim shell As New ShellClass
-                    Dim f = shell.NameSpace(Path.GetDirectoryName(oMusic.FileNameFull))
-                    Dim item = f.ParseName(Path.GetFileName(oMusic.FileNameFull))
-
-
-                    Dim MusicLength As Date = DateTime.Parse(f.GetDetailsOf(item, 27))
-                    oMusic.EndingTime = Math.Min(120, MusicLength.Minute * 60 + MusicLength.Second)
-
-                    oMusic.Title = f.GetDetailsOf(item, 21)
-                    oMusic.TitleSort = f.GetDetailsOf(item, 310)
-
-                    If oMusic.Title = "" Then
-                        oMusic.Title = IO.Path.GetFileNameWithoutExtension(oMusic.FileNameFull)
-                    End If
-
-                    If f.GetDetailsOf(item, 237) = "" Then
-                        oMusic.Artist = f.GetDetailsOf(item, 20)
-                    Else
-                        oMusic.Artist = f.GetDetailsOf(item, 237)
-                    End If
-
-                    oMusic.ArtistSort = f.GetDetailsOf(item, 241)
-
-
-                    MusicPlayer.MusicList.Add(oMusic)
-
-
-                    'リストビューに追加
-                    Dim oListViewItem As ListViewItem = ListView1.Items.Add(oMusic.Title)
-
-                    oListViewItem.SubItems.Add(oMusic.Artist)
-                    oListViewItem.SubItems.Add(oMusic.Type)
-                    oListViewItem.Tag = oMusic
-
-                    SelectMusic = oMusic
-                    InNewMusic = True
-
-            End Select
-
-L1:     Next
-
-
-        If InNewMusic Then
-
-
-            MusicPlayer.Change(SelectMusic)
+        'ドロップした音楽があれば、再生する
+        If InNewMusic IsNot Nothing Then
+            RadioControl.MusicChange(InNewMusic)
         End If
 
     End Sub
@@ -280,7 +142,7 @@ L1:     Next
         MusicPlayer.SelectMusic.OutroTime = CInt(NUD_OutroTime.Value)
         MusicPlayer.SelectMusic.IntroMaxLength = CInt(NUD_IntroMaxLength.Value)
 
-        If Setting.FullChorus OrElse MusicPlayer.SelectMusic.EndingTime = 0 Then
+        If RadioControl.Setting.FullChorus OrElse MusicPlayer.SelectMusic.EndingTime = 0 Then
             MusicPlayer.MusicLength = MusicPlayer.MusicReader.TotalTime.TotalSeconds
         Else
             MusicPlayer.MusicLength = CInt(NUD_EndingTime.Value)
@@ -336,12 +198,11 @@ L1:     Next
         NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
 
         'フルコーラス再生でない場合、曲の長さを設定
-        If Setting.FullChorus = False AndAlso MusicPlayer.SelectMusic.EndingTime > 0 Then
+        If RadioControl.Setting.FullChorus = False AndAlso MusicPlayer.SelectMusic.EndingTime > 0 Then
             MusicPlayer.MusicLength = MusicPlayer.SelectMusic.EndingTime
         End If
 
     End Sub
-
 
 
     'フルコーラス設定を反転する
@@ -446,139 +307,20 @@ L1:     Next
     End Sub
 
 
-    '交通情報を流す
-    Dim Bt As Dictionary(Of Integer, Byte())
-
-    Private Sub TrafficInfos()
-
-        Button1.Enabled = False
-        Button2.Enabled = False
-        Button3.Enabled = False
-        Button4.Enabled = False
-        CheckBox1.Enabled = False
-        GroupBox1.Enabled = False
-
-        ''次の曲を選曲
-        'RadioControl.MusicChange()
-
-        ''Do
-        ''    Dim i As Integer
-
-        ''    '次の曲を選ぶ乱数を設定
-        ''    i = Rnd.Next(0, MusicList.Count)
-
-        ''    If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
-        ''        MusicChange(MusicList(i))
-        ''        Exit Do
-        ''    End If
-
-        ''Loop
-
-        ''MCを選択
-        'Dim SelectedVoiceMC As VoiceCharacter
-
-        ''使用許可があるボイスが出るまで抽選
-        'Do
-        '    Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
-
-        '    If VoiceList(Num).TrafficMcUse Then
-        '        SelectedVoiceMC = VoiceList(Num)
-        '        Exit Do
-        '    End If
-        'Loop
-
-        ''情報センター担当者を選択
-        'Dim SelectedVoiceCenter As VoiceCharacter
-
-        ''使用許可があるボイスが出るまで抽選
-        'Do
-        '    Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
-
-        '    If VoiceList(Num).TrafficCenterUse Then
-        '        SelectedVoiceCenter = VoiceList(Num)
-        '        Exit Do
-        '    End If
-        'Loop
-
-
-
-
-        'Dim Scenario As New List(Of TrafficInfo.Scenario)
-
-        'Scenario.AddRange(TrafficInfoList.McScenario(Setting, SelectedVoiceMC, SelectedVoiceCenter))
-
-        'Scenario.InsertRange(1, TrafficInfoList.CenterScenario(Setting, SelectedVoiceCenter))
-
-        'Bt = New Dictionary(Of Integer, Byte())
-
-        ''冒頭の音声を作成
-        'Bt.Add(0, Await VoicevoxCreate(Scenario(0).Text, Scenario(0).Voice.Id))
-
-        ''続く音声を順次作成
-        'Parallel.For(1, Scenario.Count, Async Sub(i)
-
-        '                                    Bt.Add(i, Await VoicevoxCreate(Scenario(i).Text, Scenario(i).Voice.Id)）
-
-        '                                End Sub)
-
-
-        ''テキストを表示
-        'Label10.Text = "By." & Scenario(0).Voice.Name & vbCrLf & Scenario(0).Text
-        'Await ByteArrayPlay(Bt(0), True)
-
-        'For i As Integer = 1 To Scenario.Count - 1
-        '    'テキストを表示
-        '    Label10.Text = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
-        '    '音声を再生
-        '    If Bt IsNot Nothing AndAlso Bt.ContainsKey(i) Then
-        '        Await ByteArrayPlay(Bt(i), True)
-        '    End If
-        'Next
-
-        ''今の時刻を記録する
-        'TimeWhenTraffic = Now
-
-        'MusicPlayer.GenreCountReset()
-        ''OnTalk = False
-
-        'Try
-        '    If Bt IsNot Nothing AndAlso Bt.Count > 0 Then
-        '        Bt.Clear()
-        '        Bt = Nothing
-        '        '音量をフェードアウトする
-        '        BackgroundWorker1.RunWorkerAsync()
-        '    End If
-        'Catch ex As Exception
-        '    'スルー
-        'End Try
-
-        Button1.Enabled = True
-        Button2.Enabled = True
-        Button3.Enabled = True
-        Button4.Enabled = True
-        CheckBox1.Enabled = True
-        GroupBox1.Enabled = True
-    End Sub
-
 
     Private Sub SettingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SettingToolStripMenuItem.Click
 
         Dim F As New Form4
 
         'サブフォームを起動
-        F.ShowDialog(Me, Setting)
+        F.ShowDialog(Me, RadioControl)
 
     End Sub
 
     '次の曲へボタン
     Private Sub Button5_Click_1(sender As Object, e As EventArgs) Handles Button5.Click
 
-        TalkPlayer.Stop()
-
-        If Bt IsNot Nothing Then
-            Bt.Clear()
-            Bt = Nothing
-        End If
+        TalkPlayer.WoClose()
 
         RadioControl.MusicChange()
 

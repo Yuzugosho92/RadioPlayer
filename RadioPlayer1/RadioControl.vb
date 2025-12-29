@@ -4,14 +4,16 @@ Public Class RadioControl
 
     Private ReadOnly Rnd As New Random
 
+    Public ReadOnly Property Owner As Form1
+
     '基本設定ファイル
-    Public ReadOnly Property Setting As Setting
+    Public Property Setting As Setting
 
     '音楽プレイヤー
-    Public ReadOnly Property MusicPlayer As MusicPlayer
+    Public Property MusicPlayer As MusicPlayer
 
     'トークプレイヤー
-    Public ReadOnly Property TalkPlayer As TalkPlayer
+    Public Property TalkPlayer As TalkPlayer
 
     Public Property InfoText As String
 
@@ -29,10 +31,12 @@ Public Class RadioControl
 
 
     'インスタンス時
-    Sub New(Setting As Setting, MusicPlayer As MusicPlayer, TalkPlayer As TalkPlayer)
-        Me.Setting = Setting
-        Me.MusicPlayer = MusicPlayer
-        Me.TalkPlayer = TalkPlayer
+    Sub New(Owner As Form1)
+        Me.Owner = Owner
+
+        Setting = New Setting
+        MusicPlayer = New MusicPlayer(Setting)
+        TalkPlayer = New TalkPlayer(Setting)
 
         TrafficInfo = New TrafficInfo(Setting, Me)
     End Sub
@@ -42,7 +46,7 @@ Public Class RadioControl
 
 
     '定時確認ポイント
-    Public Async Sub Tick()
+    Public Sub Tick()
 
         '曲が再生されていなければ、何もしない
         If MusicPlayer.Wo Is Nothing Then

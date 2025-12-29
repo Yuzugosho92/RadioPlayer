@@ -2,7 +2,24 @@
 Imports System.Text.Json
 
 Public Class Load
-    Public Sub Load(ByRef Cls As Object, ClsName As String, FileName As String)
+
+    Public Sub Load(RadioControl As RadioControl)
+
+        '基本設定を読み込む
+        LoadSolo(RadioControl.Setting, "Settingファイル", "Setting.json")
+        '音楽情報を読み込む
+        LoadSolo(RadioControl.MusicPlayer.MusicList, "音楽リスト", "List.json")
+        'トークパターンを読み込む
+        LoadSolo(RadioControl.TalkPlayer.TalkList, "トークパターンファイル", "TalkList.json")
+        'キャラクター情報を読み込む
+        LoadSolo(RadioControl.TalkPlayer.VoiceList, "ボイスリスト", "VoiceList.json")
+        '交通情報ファイルを読み込む
+        LoadSolo(RadioControl.TrafficInfo.TIList, "交通情報ファイル", "TrafficInfo.json")
+
+    End Sub
+
+
+    Public Sub LoadSolo(ByRef Cls As Object, ClsName As String, FileName As String)
 
         Try
             '設定ファイルを開く

@@ -3,9 +3,9 @@
     Dim VoiceList As List(Of VoiceCharacter)
     Dim Type As VoiceCharacter.TalkType
 
-    Public Overloads Function ShowDialog(Owner As IWin32Window, ByRef VoiceList As List(Of VoiceCharacter), Type As VoiceCharacter.TalkType)
+    Public Overloads Function ShowDialog(Owner As IWin32Window, RadioControl As RadioControl, Type As VoiceCharacter.TalkType)
 
-        Me.VoiceList = VoiceList
+        Me.VoiceList = RadioControl.TalkPlayer.VoiceList
         Me.Type = Type
 
         'リストビューにボイスを登録

@@ -1,5 +1,7 @@
-﻿Imports NAudio.Wave
+﻿Imports System.IO
+Imports NAudio.Wave
 Imports NAudio.Wave.SampleProviders
+Imports Shell32
 
 Public Class MusicPlayer
 
@@ -70,6 +72,12 @@ Public Class MusicPlayer
 
             Exit Sub
         End Try
+
+
+
+
+
+
 
         Play()
 
@@ -220,5 +228,65 @@ Public Class MusicPlayer
             Wo.Stop()
         End If
     End Sub
+
+
+    Public Function Add(FileName As String) As Music
+
+        Dim Extension = Path.GetExtension(FileName).ToLower
+
+        '音楽ファイルならば、解析作業に入る
+        Select Case Extension
+            Case ".flac", ".mp3", ".mp4", ".wav", ".m4a"
+
+                'すでに同じファイルが登録されていないか確認
+                For Each oMu As Music In MusicList
+                    '登録されていたら、このファイルを解析しない
+                    If oMu.FileName = FileName Then
+                        Return Nothing
+                    End If
+                Next
+
+                '新しい音楽データ箱を作成
+                Dim oMusic As New Music
+
+                '各種データを登録
+                oMusic.Type = "Music"
+                oMusic.FileName = FileName
+                oMusic.StartTime = 0
+
+                '音楽ファイルのタグを開く
+                Dim shell As New ShellClass
+                Dim f = shell.NameSpace(Path.GetDirectoryName(oMusic.FileNameFull))
+                Dim item = f.ParseName(Path.GetFileName(oMusic.FileNameFull))
+
+
+                Dim MusicLength As Date = DateTime.Parse(f.GetDetailsOf(item, 27))
+                oMusic.EndingTime = Math.Min(120, MusicLength.Minute * 60 + MusicLength.Second)
+
+                oMusic.Title = f.GetDetailsOf(item, 21)
+                oMusic.TitleSort = f.GetDetailsOf(item, 310)
+
+                If oMusic.Title = "" Then
+                    oMusic.Title = IO.Path.GetFileNameWithoutExtension(oMusic.FileNameFull)
+                End If
+
+                If f.GetDetailsOf(item, 237) = "" Then
+                    oMusic.Artist = f.GetDetailsOf(item, 20)
+                Else
+                    oMusic.Artist = f.GetDetailsOf(item, 237)
+                End If
+
+                oMusic.ArtistSort = f.GetDetailsOf(item, 241)
+                MusicList.Add(oMusic)
+
+                Return oMusic
+
+            Case Else
+                Return Nothing
+        End Select
+
+    End Function
+
+
 
 End Class
