@@ -5,8 +5,6 @@ Imports VoicevoxClientSharp
 
 Public Class TalkPlayer
 
-    Private Rnd As New Random
-
     '基本設定ファイル
     Public ReadOnly Property Setting As Setting
 
@@ -24,7 +22,6 @@ Public Class TalkPlayer
     Sub New(Setting As Setting)
         Me.Setting = Setting
     End Sub
-
 
 
     '文字列をVOICEVOXに喋らせる
@@ -77,5 +74,38 @@ Public Class TalkPlayer
             End While
         End If
     End Function
+
+
+    'プレイヤーが再生中かどうか
+    Public ReadOnly Property PlaybackState As PlaybackState
+        Get
+            If Wo Is Nothing Then
+                Return PlaybackState.Stopped
+            Else
+                Return Wo.PlaybackState
+            End If
+        End Get
+    End Property
+
+
+    '再生を止める
+    Public Sub [Stop]()
+        If PlaybackState = PlaybackState.Playing Then
+            Wo.Stop()
+        End If
+    End Sub
+
+    '再生を終了する
+    Public Sub WoClose()
+        If PlaybackState = PlaybackState.Playing Then
+            Wo.Stop()
+
+            Wo.Dispose()
+            _Wo = Nothing
+
+        End If
+    End Sub
+
+
 
 End Class

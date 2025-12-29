@@ -4,7 +4,7 @@ Imports NAudio.Wave
 
 Public Class RadioControl
 
-    Private Rnd As New Random
+    Private ReadOnly Rnd As New Random
 
     '基本設定ファイル
     Public ReadOnly Property Setting As Setting
@@ -22,7 +22,8 @@ Public Class RadioControl
     Public Property InfoText As String
 
 
-
+    '曲を変更した時に発生するイベント
+    Public Event OnMusicChange(ByVal sender As Object, ByVal e As EventArgs)
 
 
     'インスタンス時
@@ -80,6 +81,7 @@ Public Class RadioControl
                                     If TalkPlayer.VoiceList Is Nothing OrElse TalkPlayer.VoiceList.Count = 0 Then
                                         '次の曲へ
                                         MusicChange()
+
                                         Exit Sub
                                     End If
 
@@ -98,6 +100,7 @@ Public Class RadioControl
                                     If Count = 0 Then
                                         '次の曲へ
                                         MusicChange()
+
                                         Exit Sub
                                     End If
 
@@ -111,6 +114,7 @@ Public Class RadioControl
                                     If Count = 0 Then
                                         '次の曲へ
                                         MusicChange()
+
                                         Exit Sub
                                     End If
 
@@ -118,18 +122,34 @@ Public Class RadioControl
                                     If Diagnostics.Process.GetProcessesByName("VOICEVOX").Length = 0 Then
                                         '次の曲へ
                                         MusicChange()
-                                    Else
-                                        ''交通情報を流す
-                                        'TrafficInfo()
+
+                                        Exit Sub
+
                                     End If
+
+
+                                    ''交通情報を流す
+                                    'TrafficInfo()
+
+
+
+
+
+
+
+
+
+
                                 Else
                                     '次の曲へ
                                     MusicChange()
+
                                 End If
 
                             Case Else
                                 '次の曲へ
                                 MusicChange()
+
                         End Select
 
                     Else
@@ -178,10 +198,27 @@ Public Class RadioControl
             Case MusicPlayer.SelectMusic.IntroTime
                 'イントロトークの時間が来たら
 
-                '選曲中のタイプが音楽ならば
-                If MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Music Then
-                    TalkChange(Talk.TalkType.Intro)
+                If TalkPlayer.PlaybackState = PlaybackState.Stopped Then
+
+                    '選曲中のタイプが音楽ならば
+                    If MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Music Then
+
+
+
+
+                        TalkChange(Talk.TalkType.Intro)
+
+
+
+
+
+                    End If
+
                 End If
+
+
+
+
 
 
 
@@ -190,10 +227,23 @@ Public Class RadioControl
                 'アウトロトークの時間が来たら
 
 
-                '選曲中のタイプが音楽ならば
-                If MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Music Then
-                    TalkChange(Talk.TalkType.Outro)
+                If TalkPlayer.PlaybackState = PlaybackState.Stopped Then
+
+                    '選曲中のタイプが音楽ならば
+                    If MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Music Then
+                        TalkChange(Talk.TalkType.Outro)
+
+                    ElseIf MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Jingle Then
+
+                        TalkChange(Talk.TalkType.Call)
+
+
+                    End If
+
+
                 End If
+
+
 
 
 
@@ -280,34 +330,43 @@ Scenario1: Dim SelectedVoice As Integer
         Tx = oTalk.Text
         Scenario = oTalk.Text
 
-        'タイトルとアーティストを置き換え
-        If MusicPlayer.SelectMusic.ArtistSort Is Nothing OrElse MusicPlayer.SelectMusic.ArtistSort = "" Then
-            Scenario = Scenario.Replace("[Artist]", MusicPlayer.SelectMusic.Artist)
+
+        If TalkType = Talk.TalkType.Call Then
+            Tx = Tx.Replace("[RadioName]", Setting.RadioName)
+            Scenario = Scenario.Replace("[RadioName]", Setting.RadioName)
+
+            _InfoText = Tx & vbCrLf & "by. " & TalkPlayer.VoiceList(SelectedVoice).Name
         Else
-            Scenario = Scenario.Replace("[Artist]", MusicPlayer.SelectMusic.ArtistSort)
+            'タイトルとアーティストを置き換え
+            If MusicPlayer.SelectMusic.ArtistSort Is Nothing OrElse MusicPlayer.SelectMusic.ArtistSort = "" Then
+                Scenario = Scenario.Replace("[Artist]", MusicPlayer.SelectMusic.Artist)
+            Else
+                Scenario = Scenario.Replace("[Artist]", MusicPlayer.SelectMusic.ArtistSort)
+            End If
+
+            If MusicPlayer.SelectMusic.TitleSort Is Nothing OrElse MusicPlayer.SelectMusic.TitleSort = "" Then
+                Scenario = Scenario.Replace("[Title]", MusicPlayer.SelectMusic.Title)
+            Else
+                Scenario = Scenario.Replace("[Title]", MusicPlayer.SelectMusic.TitleSort)
+            End If
+
+            '自己紹介文を登録
+            If Setting.MySelf Then
+                Scenario = TalkPlayer.VoiceList(SelectedVoice).MySelf & "。" & Scenario
+            End If
+
+            'もしトーク文が長過ぎたら、再抽選
+            If MusicPlayer.SelectMusic.IntroMaxLength > 0 AndAlso Scenario.Length > MusicPlayer.SelectMusic.IntroMaxLength Then
+                GoTo Scenario1
+            End If
+
+            Tx = Tx.Replace("[Artist]", MusicPlayer.SelectMusic.Artist)
+            Tx = Tx.Replace("[Title]", MusicPlayer.SelectMusic.Title)
+
+            _InfoText = Tx & vbCrLf
+            _InfoText &= "by. " & TalkPlayer.VoiceList(SelectedVoice).Name & vbCrLf & "(" & Tx.Length & "文字" & ") (" & MusicPlayer.SelectMusic.PlayCount + 1 & "回目)"
         End If
 
-        If MusicPlayer.SelectMusic.TitleSort Is Nothing OrElse MusicPlayer.SelectMusic.TitleSort = "" Then
-            Scenario = Scenario.Replace("[Title]", MusicPlayer.SelectMusic.Title)
-        Else
-            Scenario = Scenario.Replace("[Title]", MusicPlayer.SelectMusic.TitleSort)
-        End If
-
-        '自己紹介文を登録
-        If Setting.MySelf Then
-            Scenario = TalkPlayer.VoiceList(SelectedVoice).MySelf & "。" & Scenario
-        End If
-
-        'もしトーク文が長過ぎたら、再抽選
-        If MusicPlayer.SelectMusic.IntroMaxLength > 0 AndAlso Scenario.Length > MusicPlayer.SelectMusic.IntroMaxLength Then
-            GoTo Scenario1
-        End If
-
-        Tx = Tx.Replace("[Artist]", MusicPlayer.SelectMusic.Artist)
-        Tx = Tx.Replace("[Title]", MusicPlayer.SelectMusic.Title)
-
-        _InfoText = Tx & vbCrLf
-        _InfoText &= "by. " & TalkPlayer.VoiceList(SelectedVoice).Name & vbCrLf & "(" & Tx.Length & "文字" & ") (" & MusicPlayer.SelectMusic.PlayCount + 1 & "回目)"
 
 
 
@@ -319,7 +378,7 @@ Scenario1: Dim SelectedVoice As Integer
 
 
     '次の曲を選曲
-    Public Sub MusicChange()
+    Public Overloads Sub MusicChange()
         Dim NextMusic As Music
 
         Do
@@ -351,7 +410,7 @@ Scenario1: Dim SelectedVoice As Integer
                                     Exit Do
                                 Else
                                     'リストにジングルが無い場合
-                                    If MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Music Then
+                                    If MusicPlayer.MusicList.ExistsType(Music.WaveType.Jingle) = False Then
                                         MusicPlayer.GenreCountReset()
                                         Exit Do
                                     End If
@@ -372,7 +431,7 @@ Scenario1: Dim SelectedVoice As Integer
                     Case Music.WaveType.Jingle
                         'ジングルの場合
                         '交通情報を挟む設定かつ交通情報がある場合
-                        If Setting.Traffic AndAlso MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Traffic Then
+                        If Setting.Traffic AndAlso MusicPlayer.MusicList.ExistsType(Music.WaveType.Traffic) Then
                             '選択した曲が交通情報の場合
                             If NextMusic.TypeEnum = Music.WaveType.Traffic Then
                                 MusicPlayer.GenreCountReset()
@@ -397,17 +456,37 @@ Scenario1: Dim SelectedVoice As Integer
             End If
         Loop
 
-        MusicPlayer.Change(NextMusic)
+        MusicChange(NextMusic)
 
     End Sub
 
+    Public Overloads Sub MusicChange(music As Music)
+        MusicPlayer.Change(music)
+
+        'イベントを発生させる
+        RaiseEvent OnMusicChange(Me, New EventArgs)
+    End Sub
 
 
+    '曲の再生位置を変更
+    Public Sub Skip(Time As Integer)
+
+        '曲を再生している場合
+        If MusicPlayer.PlaybackState = PlaybackState.Playing Then
+
+            'トークプレイヤーを終了
+            TalkPlayer.WoClose()
+            'トーク情報ラベルをクリア
+            InfoText = ""
+
+            '再生位置を指定
+            MusicPlayer.Skip(Time)
 
 
+        End If
 
 
-
+    End Sub
 
 
 

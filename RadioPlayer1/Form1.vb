@@ -7,14 +7,8 @@ Imports System.Runtime.InteropServices.Marshalling
 Imports VoicevoxClientSharp
 Imports Shell32
 Imports System.IO
-Imports System.Runtime.Serialization.Json
-Imports System.Text
-Imports System.Text.Encodings.Web
-Imports System.Text.Json.Serialization
 Imports System.Runtime.InteropServices
 Imports VoicevoxClientSharp.ApiClient
-Imports NAudio.Gui
-Imports NAudio.Utils
 Imports System.Net.Mime.MediaTypeNames
 Imports NAudio.CoreAudioApi
 Imports System.Reflection.Emit
@@ -23,29 +17,16 @@ Imports System.Diagnostics.CodeAnalysis
 Imports System.Windows
 Imports System.Threading
 Imports System.Windows.Forms.VisualStyles
-Imports System.Configuration
-Imports NAudio
-Imports System.Transactions
-Imports System.Runtime.InteropServices.JavaScript.JSType
+
 
 Public Class Form1
 
-    'Dim MusicReader As AudioFileReader
-    'Dim OffsetSample As OffsetSampleProvider
-    'Dim volumeProvider As VolumeSampleProvider
-    Dim Wo2 As WaveOut
-
-    'Public MusicList As New MusicList
     Public TalkList As New List(Of Talk)
     Public VoiceList As New List(Of VoiceCharacter)
 
     Public Setting As New Setting
 
     Dim Rnd As New Random
-
-    'Public SelectMusic As Music
-
-    Dim OnTalk As Boolean
 
     Public TrafficInfoList As New TrafficInfo
 
@@ -54,7 +35,7 @@ Public Class Form1
     Dim MusicPlayer As MusicPlayer
     Dim TalkPlayer As TalkPlayer
 
-    Dim RadioControl As RadioControl
+    Dim WithEvents RadioControl As RadioControl
 
     'フォームスタート
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -113,37 +94,12 @@ Public Class Form1
 
         End If
 
-
-
-
-
-        NUD_StartTime.Value = MusicPlayer.SelectMusic.StartTime
-        NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
-        NUD_IntroTime.Value = MusicPlayer.SelectMusic.IntroTime
-        NUD_OutroTime.Value = MusicPlayer.SelectMusic.OutroTime
-        NUD_IntroMaxLength.Value = MusicPlayer.SelectMusic.IntroMaxLength
-
-        Label8.Text = "Gein : " & MusicPlayer.SelectMusic.Gein
-
-        'Timer1.Start()
-
-        Label1.Refresh()
-
-
-
-
     End Sub
 
 
-    Dim MusicLength As Integer
-    Dim GenreCount As Integer
-
-
-
-    '曲をチェンジする
-    Public Overloads Sub MusicChange()
-        RadioControl.MusicChange()
-
+    '曲をチェンジした時
+    Private Sub Music_Changed(sender As Object, e As System.EventArgs) Handles RadioControl.OnMusicChange
+        'タイミング調整の値を変更
         NUD_StartTime.Value = MusicPlayer.SelectMusic.StartTime
         NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
         NUD_IntroTime.Value = MusicPlayer.SelectMusic.IntroTime
@@ -155,9 +111,6 @@ Public Class Form1
 
         'タイトルテロップを描画
         Label1.Refresh()
-
-        '監視タイマーを動かす
-        Timer1.Start()
     End Sub
 
 
@@ -173,8 +126,6 @@ Public Class Form1
         Label1.Refresh()
 
     End Sub
-
-
 
 
     'VOICEVOXで文字列からwavバイト配列を生成
@@ -347,21 +298,35 @@ L1:     Next
         MusicPlayer.SelectMusic.IntroMaxLength = CInt(NUD_IntroMaxLength.Value)
 
         If Setting.FullChorus OrElse MusicPlayer.SelectMusic.EndingTime = 0 Then
-            MusicLength = MusicPlayer.MusicReader.TotalTime.TotalSeconds
+            MusicPlayer.MusicLength = MusicPlayer.MusicReader.TotalTime.TotalSeconds
         Else
-            MusicLength = CInt(NUD_EndingTime.Value)
+            MusicPlayer.MusicLength = CInt(NUD_EndingTime.Value)
         End If
 
     End Sub
 
     '10秒進める
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button3.Click
-        MusicPlayer.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds + 10)
+        '時間を進める
+        RadioControl.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds + 10)
+        'トーク情報ラベルを更新
+        Label10.Text = RadioControl.InfoText
     End Sub
 
     '10秒戻す
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        MusicPlayer.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds - 10)
+        '時間を戻す
+        RadioControl.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds - 10)
+        'トーク情報ラベルを更新
+        Label10.Text = RadioControl.InfoText
+    End Sub
+
+    '再生位置をラスト15秒前まで飛ばす
+    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button4.Click
+        '再生位置をラスト15秒前まで飛ばす
+        RadioControl.Skip(MusicPlayer.MusicLength - 15)
+        'トーク情報ラベルを更新
+        Label10.Text = RadioControl.InfoText
     End Sub
 
 
@@ -379,51 +344,11 @@ L1:     Next
 
     End Sub
 
-    '再生位置をラスト15秒前まで飛ばす
-    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button4.Click
-
-        '再生位置をラスト15秒前まで飛ばす
-        MusicPlayer.Skip(MusicPlayer.MusicLength - 15)
-
-        ''曲が再生していない場合、なにもしない
-        'If Wo Is Nothing OrElse Wo.PlaybackState <> PlaybackState.Playing Then
-        '    Exit Sub
-        'End If
-
-
-
-
-
-        'トークプレイヤーがある場合
-        If Wo2 IsNot Nothing Then
-            Wo2.Stop()
-        End If
-
-
-    End Sub
-
-
-    ''再生位置を動かすメソッド
-    'Public Sub MusicSkip(Time As Integer)
-    '    '再生位置を指定
-    '    MusicReader.CurrentTime = TimeSpan.FromSeconds(Time)
-    'End Sub
 
 
     'フルコーラス設定を反転する
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
-
         MusicPlayer.EndingTimeChange()
-
-        'If Wo Is Nothing OrElse Not Wo.PlaybackState = PlaybackState.Playing Then
-        '    Exit Sub
-        'End If
-
-        'If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
-        '    MusicLength = MusicReader.TotalTime.TotalSeconds
-        'Else
-        '    MusicLength = SelectMusic.EndingTime
-        'End If
     End Sub
 
 
@@ -435,24 +360,6 @@ L1:     Next
 
     '情報ラベルを再描画
     Private Sub Label1_Paint(sender As Object, e As PaintEventArgs) Handles Label1.Paint
-
-
-
-
-
-        If MusicPlayer.SelectMusic IsNot Nothing Then
-            e.Graphics.DrawString(MusicPlayer.SelectMusic.Title, Label1.Font, Brushes.LightPink, 0, 2)
-
-            e.Graphics.DrawString(MusicPlayer.SelectMusic.Artist, Label1.Font, Brushes.White, 0, 42)
-
-
-
-        End If
-
-
-
-
-
         '文字描画位置を右寄せにする
         Dim sf As New StringFormat()
         sf.Alignment = StringAlignment.Far
@@ -467,13 +374,14 @@ L1:     Next
             Dim TimeCount As Integer = Int(MusicPlayer.MusicReader.CurrentTime.TotalSeconds)
             TimeRectangle = New RectangleF(Label1.Width - 150, 42, 148, 42)
             e.Graphics.DrawString(TimeCount, Label1.Font, Brushes.White, TimeRectangle, sf)
+
+
+            e.Graphics.DrawString(MusicPlayer.SelectMusic.Title, Label1.Font, Brushes.LightPink, 0, 2)
+
+            e.Graphics.DrawString(MusicPlayer.SelectMusic.Artist, Label1.Font, Brushes.White, 0, 42)
+
+
         End If
-
-
-
-
-
-
     End Sub
 
 
@@ -481,35 +389,10 @@ L1:     Next
     'リストから再生
     Private Sub PlayToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PlayToolStripMenuItem.Click
 
-        'トークプレイヤーがある場合
-        If Wo2 IsNot Nothing Then
-            Bt.Clear()
+        TalkPlayer.WoClose()
 
-            Wo2.Stop()
+        RadioControl.MusicChange(ListView1.SelectedItems(0).Tag)
 
-
-        End If
-
-
-
-        MusicPlayer.Change(ListView1.SelectedItems(0).Tag)
-
-
-
-        NUD_StartTime.Value = MusicPlayer.SelectMusic.StartTime
-        NUD_EndingTime.Value = MusicPlayer.SelectMusic.EndingTime
-        NUD_IntroTime.Value = MusicPlayer.SelectMusic.IntroTime
-        NUD_OutroTime.Value = MusicPlayer.SelectMusic.OutroTime
-        NUD_IntroMaxLength.Value = MusicPlayer.SelectMusic.IntroMaxLength
-
-        Label8.Text = "Gein : " & MusicPlayer.SelectMusic.Gein
-        Button1.Text = "一時停止"
-
-        'タイトルテロップを描画
-        Label1.Refresh()
-
-        '監視タイマーを動かす
-        Timer1.Start()
     End Sub
 
 
@@ -542,18 +425,13 @@ L1:     Next
 
     End Sub
 
+
+    'リストから曲を削除
     Private Sub DelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DelToolStripMenuItem.Click
 
-        'トークプレイヤーがある場合
-        If Wo2 IsNot Nothing Then
-            Wo2.Stop()
-        End If
+        MusicPlayer.Stop()
 
-        'If Wo IsNot Nothing Then
-        '    Wo.Stop()
-        '    Wo.Dispose()
-        'End If
-
+        TalkPlayer.Stop()
 
         Dim str As String = "「" & ListView1.SelectedItems(0).Text & "」を選択中" & vbCrLf
         str &= "選択中の曲を、データベースから削除しますか？" & vbCrLf & "音楽ファイル自体は残ります"
@@ -566,6 +444,7 @@ L1:     Next
             MusicPlayer.MusicList.RemoveAt(music)
             'リストビューからも削除
             ListView1.SelectedItems(0).Remove()
+
         End If
 
     End Sub
@@ -584,7 +463,7 @@ L1:     Next
         GroupBox1.Enabled = False
 
         '次の曲を選曲
-        MusicChange()
+        RadioControl.MusicChange()
 
         'Do
         '    Dim i As Integer
@@ -663,8 +542,8 @@ L1:     Next
         '今の時刻を記録する
         TimeWhenTraffic = Now
 
-        GenreCount = 0
-        OnTalk = False
+        MusicPlayer.GenreCountReset()
+        'OnTalk = False
 
         Try
             If Bt IsNot Nothing AndAlso Bt.Count > 0 Then
@@ -698,21 +577,19 @@ L1:     Next
     '次の曲へボタン
     Private Sub Button5_Click_1(sender As Object, e As EventArgs) Handles Button5.Click
 
-        'タイマーを止める
-        Timer1.Stop()
-        'トーク中を解除
-        OnTalk = False
+        ''タイマーを止める
+        'Timer1.Stop()
+        ''トーク中を解除
+        'OnTalk = False
 
-        If Wo2 IsNot Nothing Then
-            Wo2.Stop()
-        End If
+        TalkPlayer.Stop()
 
         If Bt IsNot Nothing Then
             Bt.Clear()
             Bt = Nothing
         End If
 
-        MusicChange()
+        RadioControl.MusicChange()
 
     End Sub
 

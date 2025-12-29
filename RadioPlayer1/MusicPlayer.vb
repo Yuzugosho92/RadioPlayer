@@ -1,9 +1,8 @@
-﻿Imports NAudio.Wave
+﻿Imports System.Reflection.Emit
+Imports NAudio.Wave
 Imports NAudio.Wave.SampleProviders
 
 Public Class MusicPlayer
-
-    Private Rnd As New Random
 
     '基本設定ファイル
     Public ReadOnly Property Setting As Setting
@@ -32,90 +31,6 @@ Public Class MusicPlayer
     Sub New(Setting As Setting)
         Me.Setting = Setting
     End Sub
-
-
-    ''次の曲を選曲
-    'Public Overloads Sub Change()
-    '    Dim NextMusic As Music
-
-    '    Do
-    '        '次の曲を選ぶ乱数を設定
-    '        NextMusic = MusicList(Rnd.Next(0, MusicList.Count))
-
-    '        '前曲が無い場合
-    '        If SelectMusic Is Nothing Then
-    '            Exit Do
-    '        End If
-
-    '        '曲がリストの中に1曲しかない場合
-    '        If MusicList.Count = 1 Then
-    '            Exit Do
-    '        End If
-
-    '        '前曲と同じ曲では無い場合
-    '        If NextMusic IsNot SelectMusic Then
-    '            '前曲のタイプで分岐
-    '            Select Case SelectMusic.TypeEnum
-    '                Case Music.WaveType.Music
-    '                    '音楽の場合
-    '                    '選択した曲のタイプで分岐
-    '                    Select Case NextMusic.TypeEnum
-    '                        Case Music.WaveType.Music
-    '                            '音楽の場合
-    '                            '音楽タイプの再生回数が設定を越えてなければ
-    '                            If GenreCount < Setting.JingleFrequency Then
-    '                                Exit Do
-    '                            Else
-    '                                'リストにジングルが無い場合
-    '                                If SelectMusic.TypeEnum = Music.WaveType.Music Then
-    '                                    _GenreCount = 0
-    '                                    Exit Do
-    '                                End If
-    '                            End If
-
-    '                        Case Music.WaveType.Jingle
-    '                            'ジングルの場合
-    '                            '音楽タイプの再生回数が設定を越えていれば
-    '                            If GenreCount >= Setting.JingleFrequency Then
-    '                                _GenreCount = 0
-    '                                Exit Do
-    '                            End If
-
-    '                        Case Else
-    '                            '交通情報の場合、再抽選
-    '                    End Select
-
-    '                Case Music.WaveType.Jingle
-    '                    'ジングルの場合
-    '                    '交通情報を挟む設定かつ交通情報がある場合
-    '                    If Setting.Traffic AndAlso SelectMusic.TypeEnum = Music.WaveType.Traffic Then
-    '                        '選択した曲が交通情報の場合
-    '                        If NextMusic.TypeEnum = Music.WaveType.Traffic Then
-    '                            _GenreCount = 0
-    '                            Exit Do
-    '                        End If
-    '                    Else
-    '                        '選択した曲が音楽の場合
-    '                        If NextMusic.TypeEnum = Music.WaveType.Music Then
-    '                            _GenreCount = 0
-    '                            Exit Do
-    '                        End If
-    '                    End If
-
-    '                Case Music.WaveType.Traffic
-    '                    '交通情報の場合
-    '                    '選択した曲が音楽の場合
-    '                    If NextMusic.TypeEnum = Music.WaveType.Music Then
-    '                        _GenreCount = 0
-    '                        Exit Do
-    '                    End If
-    '            End Select
-    '        End If
-    '    Loop
-
-    '    Change(NextMusic)
-
-    'End Sub
 
 
     '次の音楽を設定する
@@ -210,14 +125,7 @@ Public Class MusicPlayer
     '音楽を一時停止or再開する
     Public Function PalyOrStop() As String
 
-        If Wo Is Nothing OrElse SelectMusic Is Nothing Then
-            '曲が選択されていない場合
-            ''次の曲を再生
-            'Change()
-
-            Return "一時停止"
-
-        ElseIf Wo.PlaybackState = PlaybackState.Playing Then
+        If Wo.PlaybackState = PlaybackState.Playing Then
             '再生中の場合
             '一時停止
             Wo.Stop()
@@ -251,12 +159,6 @@ Public Class MusicPlayer
 
     '曲の再生位置を変更
     Public Sub Skip(Time As Integer)
-
-        '曲を再生していない場合、なにもしない
-        If Wo Is Nothing OrElse Wo.PlaybackState <> PlaybackState.Playing Then
-            Return
-        End If
-
         '再生位置を指定
         MusicReader.CurrentTime = TimeSpan.FromSeconds(Time)
     End Sub
@@ -303,5 +205,28 @@ Public Class MusicPlayer
     Public Sub GenreCountReset()
         _GenreCount = 0
     End Sub
+
+
+    'プレイヤーが再生中かどうか
+    Public ReadOnly Property PlaybackState As PlaybackState
+        Get
+            If Wo Is Nothing Then
+                Return PlaybackState.Stopped
+            Else
+                Return Wo.PlaybackState
+            End If
+        End Get
+    End Property
+
+
+    '再生を止める
+    Public Sub [Stop]()
+        If PlaybackState = PlaybackState.Playing Then
+            Wo.Stop()
+        End If
+    End Sub
+
+
+
 
 End Class
