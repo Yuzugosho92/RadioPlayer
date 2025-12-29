@@ -67,10 +67,15 @@ Public Class TalkPlayer
         'プレイヤーを再生
         Wo.Play()
 
+        'トークを最後まで流す
         If OnFull Then
-            While Wo.PlaybackState = PlaybackState.Playing
+            Do
+                If Wo Is Nothing OrElse Wo.PlaybackState = PlaybackState.Stopped Then
+                    Exit Do
+                End If
+
                 Await Task.Delay(100)
-            End While
+            Loop
         End If
     End Function
 

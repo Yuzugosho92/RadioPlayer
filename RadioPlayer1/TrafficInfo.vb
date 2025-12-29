@@ -1,7 +1,4 @@
-﻿Imports System.Windows.Forms.VisualStyles.VisualStyleElement.Button
-Imports NAudio.Wave.Asio
-
-Public Class TrafficInfo
+﻿Public Class TrafficInfo
 
     Dim Rnd As New Random
 

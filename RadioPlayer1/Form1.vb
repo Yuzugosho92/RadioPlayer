@@ -322,7 +322,9 @@ Public Class Form1
 
         TalkPlayer.WoClose()
 
-        RadioControl.MusicChange()
+        If MusicPlayer.SelectMusic.TypeEnum <> Music.WaveType.Traffic Then
+            RadioControl.MusicChange()
+        End If
 
     End Sub
 
