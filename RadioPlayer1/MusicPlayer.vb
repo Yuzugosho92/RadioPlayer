@@ -40,10 +40,6 @@ Public Class MusicPlayer
             '演奏を終了し破棄する
             Wo.Stop()
             Wo.Dispose()
-            ''監視タイマーを止める
-            'Timer1.Stop()
-
-            'Label10.Text = ""
         End If
 
         '選択した曲を登録する

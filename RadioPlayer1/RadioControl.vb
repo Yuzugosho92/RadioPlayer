@@ -22,6 +22,8 @@ Public Class RadioControl
     Public Property InfoText As String
 
 
+    Private OnTalk As Boolean
+
     '曲を変更した時に発生するイベント
     Public Event OnMusicChange(ByVal sender As Object, ByVal e As EventArgs)
 
@@ -53,16 +55,13 @@ Public Class RadioControl
             Case Is >= (MusicPlayer.MusicLength)
                 '曲が終了する時間ならば
 
-                If OnFadeOut Then
 
 
-                    OnFadeOut = False
+                OnFadeOut = False
 
-                    _InfoText = ""
+                OnTalk = False
 
-
-
-
+                _InfoText = ""
 
                     If MusicPlayer.SelectMusic IsNot Nothing AndAlso MusicPlayer.MusicList.ExistsType(Music.WaveType.Traffic) AndAlso Setting.Traffic Then
                         Select Case MusicPlayer.SelectMusic.TypeEnum
@@ -72,6 +71,13 @@ Public Class RadioControl
                                 '交通情報の開始時間を過ぎていたら
                                 If TimeWhenTraffic.AddMinutes(Setting.TrafficInterval) < Now Then
 
+                                    If Setting.Traffic = False Then
+                                        '次の曲へ
+                                        MusicChange()
+
+                                        Exit Sub
+
+                                    End If
 
 
 
@@ -164,7 +170,6 @@ Public Class RadioControl
 
 
 
-                End If
 
 
 
@@ -177,12 +182,8 @@ Public Class RadioControl
 
                     'ジャンルが交通情報でなければ
                     If MusicPlayer.SelectMusic.TypeEnum <> Music.WaveType.Traffic Then
-                        ''タイマーを止める
-                        'Timer1.Stop()
                         '再生カウントを追加
                         MusicPlayer.SelectMusic.PlayCount += 1
-                        ''トーク中を解除
-                        'OnTalk = False
                         'フェードアウト中をオンにする
                         OnFadeOut = True
                         '音量をフェードアウトする
@@ -198,13 +199,13 @@ Public Class RadioControl
             Case MusicPlayer.SelectMusic.IntroTime
                 'イントロトークの時間が来たら
 
-                If TalkPlayer.PlaybackState = PlaybackState.Stopped Then
+                If OnTalk = False Then
 
                     '選曲中のタイプが音楽ならば
                     If MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Music Then
 
 
-
+                        OnTalk = True
 
                         TalkChange(Talk.TalkType.Intro)
 
@@ -227,14 +228,18 @@ Public Class RadioControl
                 'アウトロトークの時間が来たら
 
 
-                If TalkPlayer.PlaybackState = PlaybackState.Stopped Then
+                If OnTalk = False Then
 
                     '選曲中のタイプが音楽ならば
                     If MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Music Then
+                        OnTalk = True
+
                         TalkChange(Talk.TalkType.Outro)
 
-                    ElseIf MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Jingle Then
 
+
+                    ElseIf MusicPlayer.SelectMusic.TypeEnum = Music.WaveType.Jingle Then
+                        OnTalk = True
                         TalkChange(Talk.TalkType.Call)
 
 
@@ -243,6 +248,10 @@ Public Class RadioControl
 
                 End If
 
+
+            Case Else
+
+                OnTalk = TalkPlayer.PlaybackState
 
 
 
@@ -461,6 +470,12 @@ Scenario1: Dim SelectedVoice As Integer
     End Sub
 
     Public Overloads Sub MusicChange(music As Music)
+
+        'トークプレイヤーを終了
+        TalkPlayer.WoClose()
+        'トーク情報ラベルをクリア
+        InfoText = ""
+
         MusicPlayer.Change(music)
 
         'イベントを発生させる
@@ -470,10 +485,8 @@ Scenario1: Dim SelectedVoice As Integer
 
     '曲の再生位置を変更
     Public Sub Skip(Time As Integer)
-
         '曲を再生している場合
         If MusicPlayer.PlaybackState = PlaybackState.Playing Then
-
             'トークプレイヤーを終了
             TalkPlayer.WoClose()
             'トーク情報ラベルをクリア
@@ -481,27 +494,7 @@ Scenario1: Dim SelectedVoice As Integer
 
             '再生位置を指定
             MusicPlayer.Skip(Time)
-
-
         End If
-
-
     End Sub
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 End Class

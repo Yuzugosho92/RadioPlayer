@@ -307,24 +307,36 @@ L1:     Next
 
     '10秒進める
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button3.Click
-        '時間を進める
-        RadioControl.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds + 10)
+
+        If MusicPlayer.PlaybackState Then
+            '時間を進める
+            RadioControl.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds + 10)
+        End If
+
         'トーク情報ラベルを更新
         Label10.Text = RadioControl.InfoText
     End Sub
 
     '10秒戻す
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        '時間を戻す
-        RadioControl.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds - 10)
+
+        If MusicPlayer.PlaybackState Then
+            '時間を戻す
+            RadioControl.Skip(MusicPlayer.MusicReader.CurrentTime.TotalSeconds - 10)
+        End If
+
         'トーク情報ラベルを更新
         Label10.Text = RadioControl.InfoText
     End Sub
 
     '再生位置をラスト15秒前まで飛ばす
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        '再生位置をラスト15秒前まで飛ばす
-        RadioControl.Skip(MusicPlayer.MusicLength - 15)
+
+        If MusicPlayer.PlaybackState Then
+            '再生位置をラスト15秒前まで飛ばす
+            RadioControl.Skip(MusicPlayer.MusicLength - 15)
+        End If
+
         'トーク情報ラベルを更新
         Label10.Text = RadioControl.InfoText
     End Sub
@@ -388,8 +400,6 @@ L1:     Next
 
     'リストから再生
     Private Sub PlayToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PlayToolStripMenuItem.Click
-
-        TalkPlayer.WoClose()
 
         RadioControl.MusicChange(ListView1.SelectedItems(0).Tag)
 

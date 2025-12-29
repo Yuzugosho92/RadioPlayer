@@ -84,7 +84,7 @@ Partial Class Form1
         ' Timer1
         ' 
         Timer1.Enabled = True
-        Timer1.Interval = 1000
+        Timer1.Interval = 200
         ' 
         ' BackgroundWorker1
         ' 
