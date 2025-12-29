@@ -28,7 +28,7 @@ Public Class Form1
 
     Dim Rnd As New Random
 
-    Public TrafficInfoList As New TrafficInfo
+    Public TrafficInfo As TrafficInfo
 
     Dim TimeWhenTraffic As Date
 
@@ -56,11 +56,13 @@ Public Class Form1
         Load.Load(TalkPlayer.TalkList, "トークパターンファイル", "TalkList.json")
         'キャラクター情報を読み込む
         Load.Load(TalkPlayer.VoiceList, "ボイスリスト", "VoiceList.json")
-        '交通情報ファイルを読み込む
-        Load.Load(TrafficInfoList, "交通情報ファイル", "TrafficInfo.json")
+
 
         'ラジオコントロールをインスタンス
         RadioControl = New RadioControl(Setting, MusicPlayer, TalkPlayer)
+
+        '交通情報ファイルを読み込む
+        Load.Load(RadioControl.TrafficInfo.TIList, "交通情報ファイル", "TrafficInfo.json")
 
         RadioControl.InfoText = "ロード完了"
         Label8.Text = MusicPlayer.MusicList.Count & "曲"
@@ -157,26 +159,6 @@ Public Class Form1
 
 
         Await TalkPlayer.ByteArrayPlay(bt, OnFull)
-
-
-
-    End Function
-
-
-
-
-
-
-
-
-    Public Function MusicTag(FileName As String, i As Integer) As String
-
-        Dim shell As New ShellClass
-        Dim f As Folder = shell.NameSpace(IO.Path.GetDirectoryName(FileName))
-        Dim item As FolderItem = f.ParseName(IO.Path.GetFileName(FileName))
-
-        Return f.GetDetailsOf(item, i)
-
 
 
 
@@ -288,6 +270,7 @@ L1:     Next
 
     End Sub
 
+
     'タイミング調整の値を変更する
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button50.Click
 
@@ -305,6 +288,7 @@ L1:     Next
 
     End Sub
 
+
     '10秒進める
     Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button3.Click
 
@@ -317,6 +301,7 @@ L1:     Next
         Label10.Text = RadioControl.InfoText
     End Sub
 
+
     '10秒戻す
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button2.Click
 
@@ -328,6 +313,7 @@ L1:     Next
         'トーク情報ラベルを更新
         Label10.Text = RadioControl.InfoText
     End Sub
+
 
     '再生位置をラスト15秒前まで飛ばす
     Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button4.Click
@@ -463,7 +449,7 @@ L1:     Next
     '交通情報を流す
     Dim Bt As Dictionary(Of Integer, Byte())
 
-    Private Async Sub TrafficInfo()
+    Private Sub TrafficInfos()
 
         Button1.Enabled = False
         Button2.Enabled = False
@@ -472,99 +458,99 @@ L1:     Next
         CheckBox1.Enabled = False
         GroupBox1.Enabled = False
 
-        '次の曲を選曲
-        RadioControl.MusicChange()
+        ''次の曲を選曲
+        'RadioControl.MusicChange()
 
+        ''Do
+        ''    Dim i As Integer
+
+        ''    '次の曲を選ぶ乱数を設定
+        ''    i = Rnd.Next(0, MusicList.Count)
+
+        ''    If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
+        ''        MusicChange(MusicList(i))
+        ''        Exit Do
+        ''    End If
+
+        ''Loop
+
+        ''MCを選択
+        'Dim SelectedVoiceMC As VoiceCharacter
+
+        ''使用許可があるボイスが出るまで抽選
         'Do
-        '    Dim i As Integer
+        '    Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
 
-        '    '次の曲を選ぶ乱数を設定
-        '    i = Rnd.Next(0, MusicList.Count)
-
-        '    If MusicList(i).TypeEnum = Music.WaveType.Traffic Then
-        '        MusicChange(MusicList(i))
+        '    If VoiceList(Num).TrafficMcUse Then
+        '        SelectedVoiceMC = VoiceList(Num)
         '        Exit Do
         '    End If
-
         'Loop
 
-        'MCを選択
-        Dim SelectedVoiceMC As VoiceCharacter
+        ''情報センター担当者を選択
+        'Dim SelectedVoiceCenter As VoiceCharacter
 
-        '使用許可があるボイスが出るまで抽選
-        Do
-            Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
+        ''使用許可があるボイスが出るまで抽選
+        'Do
+        '    Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
 
-            If VoiceList(Num).TrafficMcUse Then
-                SelectedVoiceMC = VoiceList(Num)
-                Exit Do
-            End If
-        Loop
-
-        '情報センター担当者を選択
-        Dim SelectedVoiceCenter As VoiceCharacter
-
-        '使用許可があるボイスが出るまで抽選
-        Do
-            Dim Num As Integer = Rnd.Next(0, VoiceList.Count)
-
-            If VoiceList(Num).TrafficCenterUse Then
-                SelectedVoiceCenter = VoiceList(Num)
-                Exit Do
-            End If
-        Loop
+        '    If VoiceList(Num).TrafficCenterUse Then
+        '        SelectedVoiceCenter = VoiceList(Num)
+        '        Exit Do
+        '    End If
+        'Loop
 
 
 
 
-        Dim Scenario As New List(Of TrafficInfo.Scenario)
+        'Dim Scenario As New List(Of TrafficInfo.Scenario)
 
-        Scenario.AddRange(TrafficInfoList.McScenario(Setting, SelectedVoiceMC, SelectedVoiceCenter))
+        'Scenario.AddRange(TrafficInfoList.McScenario(Setting, SelectedVoiceMC, SelectedVoiceCenter))
 
-        Scenario.InsertRange(1, TrafficInfoList.CenterScenario(Setting, SelectedVoiceCenter))
+        'Scenario.InsertRange(1, TrafficInfoList.CenterScenario(Setting, SelectedVoiceCenter))
 
-        Bt = New Dictionary(Of Integer, Byte())
+        'Bt = New Dictionary(Of Integer, Byte())
 
-        '冒頭の音声を作成
-        Bt.Add(0, Await VoicevoxCreate(Scenario(0).Text, Scenario(0).Voice.Id))
+        ''冒頭の音声を作成
+        'Bt.Add(0, Await VoicevoxCreate(Scenario(0).Text, Scenario(0).Voice.Id))
 
-        '続く音声を順次作成
-        Parallel.For(1, Scenario.Count, Async Sub(i)
+        ''続く音声を順次作成
+        'Parallel.For(1, Scenario.Count, Async Sub(i)
 
-                                            Bt.Add(i, Await VoicevoxCreate(Scenario(i).Text, Scenario(i).Voice.Id)）
+        '                                    Bt.Add(i, Await VoicevoxCreate(Scenario(i).Text, Scenario(i).Voice.Id)）
 
-                                        End Sub)
+        '                                End Sub)
 
 
-        'テキストを表示
-        Label10.Text = "By." & Scenario(0).Voice.Name & vbCrLf & Scenario(0).Text
-        Await ByteArrayPlay(Bt(0), True)
+        ''テキストを表示
+        'Label10.Text = "By." & Scenario(0).Voice.Name & vbCrLf & Scenario(0).Text
+        'Await ByteArrayPlay(Bt(0), True)
 
-        For i As Integer = 1 To Scenario.Count - 1
-            'テキストを表示
-            Label10.Text = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
-            '音声を再生
-            If Bt IsNot Nothing AndAlso Bt.ContainsKey(i) Then
-                Await ByteArrayPlay(Bt(i), True)
-            End If
-        Next
+        'For i As Integer = 1 To Scenario.Count - 1
+        '    'テキストを表示
+        '    Label10.Text = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
+        '    '音声を再生
+        '    If Bt IsNot Nothing AndAlso Bt.ContainsKey(i) Then
+        '        Await ByteArrayPlay(Bt(i), True)
+        '    End If
+        'Next
 
-        '今の時刻を記録する
-        TimeWhenTraffic = Now
+        ''今の時刻を記録する
+        'TimeWhenTraffic = Now
 
-        MusicPlayer.GenreCountReset()
-        'OnTalk = False
+        'MusicPlayer.GenreCountReset()
+        ''OnTalk = False
 
-        Try
-            If Bt IsNot Nothing AndAlso Bt.Count > 0 Then
-                Bt.Clear()
-                Bt = Nothing
-                '音量をフェードアウトする
-                BackgroundWorker1.RunWorkerAsync()
-            End If
-        Catch ex As Exception
-            'スルー
-        End Try
+        'Try
+        '    If Bt IsNot Nothing AndAlso Bt.Count > 0 Then
+        '        Bt.Clear()
+        '        Bt = Nothing
+        '        '音量をフェードアウトする
+        '        BackgroundWorker1.RunWorkerAsync()
+        '    End If
+        'Catch ex As Exception
+        '    'スルー
+        'End Try
 
         Button1.Enabled = True
         Button2.Enabled = True
@@ -587,11 +573,6 @@ L1:     Next
     '次の曲へボタン
     Private Sub Button5_Click_1(sender As Object, e As EventArgs) Handles Button5.Click
 
-        ''タイマーを止める
-        'Timer1.Stop()
-        ''トーク中を解除
-        'OnTalk = False
-
         TalkPlayer.Stop()
 
         If Bt IsNot Nothing Then
@@ -603,7 +584,17 @@ L1:     Next
 
     End Sub
 
+    'ラジオコントロールの情報文が変更された時
+    Private Sub InfoTextChange(sender As Object, e As EventArgs) Handles RadioControl.InfoTextChange
+        Label10.Text = RadioControl.InfoText
+    End Sub
+
+
+
 End Class
+
+
+
 
 
 ''' <summary>

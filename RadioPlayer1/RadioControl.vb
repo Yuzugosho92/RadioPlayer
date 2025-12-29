@@ -1,6 +1,4 @@
-﻿Imports System.Reflection.Emit
-Imports System.Threading
-Imports NAudio.Wave
+﻿Imports NAudio.Wave
 
 Public Class RadioControl
 
@@ -15,11 +13,10 @@ Public Class RadioControl
     'トークプレイヤー
     Public ReadOnly Property TalkPlayer As TalkPlayer
 
-    '前回の交通情報を流した時間を記録
-    Public Property TimeWhenTraffic As Date
-
-
     Public Property InfoText As String
+
+    '交通情報プレイヤー
+    Public Property TrafficInfo As TrafficInfo
 
 
     Private OnTalk As Boolean
@@ -27,12 +24,17 @@ Public Class RadioControl
     '曲を変更した時に発生するイベント
     Public Event OnMusicChange(ByVal sender As Object, ByVal e As EventArgs)
 
+    '情報文を変更した時に発生するイベント
+    Public Event InfoTextChange(ByVal sender As Object, ByVal e As EventArgs)
+
 
     'インスタンス時
     Sub New(Setting As Setting, MusicPlayer As MusicPlayer, TalkPlayer As TalkPlayer)
         Me.Setting = Setting
         Me.MusicPlayer = MusicPlayer
         Me.TalkPlayer = TalkPlayer
+
+        TrafficInfo = New TrafficInfo(Setting, Me)
     End Sub
 
 
@@ -40,10 +42,10 @@ Public Class RadioControl
 
 
     '定時確認ポイント
-    Public Sub Tick()
+    Public Async Sub Tick()
 
         '曲が再生されていなければ、何もしない
-        If MusicPlayer.Wo Is Nothing OrElse MusicPlayer.Wo.PlaybackState = PlaybackState.Paused Then
+        If MusicPlayer.Wo Is Nothing Then
             Return
         End If
 
@@ -55,123 +57,14 @@ Public Class RadioControl
             Case Is >= (MusicPlayer.MusicLength)
                 '曲が終了する時間ならば
 
-
-
                 OnFadeOut = False
 
                 OnTalk = False
 
                 _InfoText = ""
 
-                    If MusicPlayer.SelectMusic IsNot Nothing AndAlso MusicPlayer.MusicList.ExistsType(Music.WaveType.Traffic) AndAlso Setting.Traffic Then
-                        Select Case MusicPlayer.SelectMusic.TypeEnum
-                            Case Music.WaveType.Jingle
-                                '前曲がジングルならば
-
-                                '交通情報の開始時間を過ぎていたら
-                                If TimeWhenTraffic.AddMinutes(Setting.TrafficInterval) < Now Then
-
-                                    If Setting.Traffic = False Then
-                                        '次の曲へ
-                                        MusicChange()
-
-                                        Exit Sub
-
-                                    End If
-
-
-
-
-
-                                    'ボイスリストが無ければ
-                                    If TalkPlayer.VoiceList Is Nothing OrElse TalkPlayer.VoiceList.Count = 0 Then
-                                        '次の曲へ
-                                        MusicChange()
-
-                                        Exit Sub
-                                    End If
-
-
-
-
-
-
-                                    Dim Count As Integer
-
-                                    'MCの使用許可があるボイスが居ない場合
-                                    For Each oVoice As VoiceCharacter In TalkPlayer.VoiceList
-                                        Count += CInt(oVoice.TrafficMcUse)
-                                    Next
-
-                                    If Count = 0 Then
-                                        '次の曲へ
-                                        MusicChange()
-
-                                        Exit Sub
-                                    End If
-
-                                    Count = 0
-
-                                    '道路交通情報センターの使用許可があるボイスが居ない場合
-                                    For Each oVoice As VoiceCharacter In TalkPlayer.VoiceList
-                                        Count += CInt(oVoice.TrafficCenterUse)
-                                    Next
-
-                                    If Count = 0 Then
-                                        '次の曲へ
-                                        MusicChange()
-
-                                        Exit Sub
-                                    End If
-
-                                    'VOICEVOXが起動していない時
-                                    If Diagnostics.Process.GetProcessesByName("VOICEVOX").Length = 0 Then
-                                        '次の曲へ
-                                        MusicChange()
-
-                                        Exit Sub
-
-                                    End If
-
-
-                                    ''交通情報を流す
-                                    'TrafficInfo()
-
-
-
-
-
-
-
-
-
-
-                                Else
-                                    '次の曲へ
-                                    MusicChange()
-
-                                End If
-
-                            Case Else
-                                '次の曲へ
-                                MusicChange()
-
-                        End Select
-
-                    Else
-                        '次の曲へ
-                        MusicChange()
-
-                    End If
-
-
-
-
-
-
-
-
-
+                '次の曲へ
+                MusicChange()
 
             Case Is >= (MusicPlayer.MusicLength - 3)
                 '曲が終了する3秒前ならば
@@ -439,8 +332,8 @@ Scenario1: Dim SelectedVoice As Integer
 
                     Case Music.WaveType.Jingle
                         'ジングルの場合
-                        '交通情報を挟む設定かつ交通情報がある場合
-                        If Setting.Traffic AndAlso MusicPlayer.MusicList.ExistsType(Music.WaveType.Traffic) Then
+                        '交通情報を挟む設定かつ交通情報がある場合かつ交通情報の時間が過ぎていた場合
+                        If Setting.Traffic AndAlso MusicPlayer.MusicList.ExistsType(Music.WaveType.Traffic) AndAlso TrafficInfo.TimeWhenTraffic.AddMinutes(Setting.TrafficInterval) < Now Then
                             '選択した曲が交通情報の場合
                             If NextMusic.TypeEnum = Music.WaveType.Traffic Then
                                 MusicPlayer.GenreCountReset()
@@ -466,6 +359,12 @@ Scenario1: Dim SelectedVoice As Integer
         Loop
 
         MusicChange(NextMusic)
+
+        '選ばれた曲が交通情報ならば
+        If NextMusic.TypeEnum = Music.WaveType.Traffic Then
+            '交通情報を流す
+            TrafficInfo.Play()
+        End If
 
     End Sub
 
@@ -496,5 +395,12 @@ Scenario1: Dim SelectedVoice As Integer
             MusicPlayer.Skip(Time)
         End If
     End Sub
+
+
+    Friend Sub InfoTextChanged()
+        'イベントを発生させる
+        RaiseEvent InfoTextChange(Me, New EventArgs)
+    End Sub
+
 
 End Class

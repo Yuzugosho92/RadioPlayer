@@ -1,5 +1,4 @@
-﻿Imports System.Reflection.Emit
-Imports NAudio.Wave
+﻿Imports NAudio.Wave
 Imports NAudio.Wave.SampleProviders
 
 Public Class MusicPlayer
@@ -96,7 +95,7 @@ Public Class MusicPlayer
 
         '曲の終了位置を設定
         If SelectMusic.EndingTime = 0 OrElse Setting.FullChorus OrElse SelectMusic.TypeEnum = Music.WaveType.Traffic Then
-            MusicLength = MusicReader.TotalTime.TotalSeconds
+            MusicLength = Int(MusicReader.TotalTime.TotalSeconds)
         Else
             OffsetSample.Take = TimeSpan.FromSeconds(SelectMusic.EndingTime)
             MusicLength = SelectMusic.EndingTime
@@ -169,7 +168,7 @@ Public Class MusicPlayer
         If Wo IsNot Nothing Then
 
             If Setting.FullChorus OrElse SelectMusic.EndingTime = 0 Then
-                MusicLength = MusicReader.TotalTime.TotalSeconds
+                MusicLength = Int(MusicReader.TotalTime.TotalSeconds)
             Else
                 MusicLength = SelectMusic.EndingTime
             End If
@@ -221,8 +220,5 @@ Public Class MusicPlayer
             Wo.Stop()
         End If
     End Sub
-
-
-
 
 End Class

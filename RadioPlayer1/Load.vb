@@ -1,6 +1,5 @@
 ﻿Imports System.IO
 Imports System.Text.Json
-Imports Windows.Win32.System
 
 Public Class Load
     Public Sub Load(ByRef Cls As Object, ClsName As String, FileName As String)
@@ -24,7 +23,7 @@ Public Class Load
                 Case "ボイスリスト"
                     Cls = JsonSerializer.Deserialize(Of List(Of VoiceCharacter))(str)
                 Case "交通情報ファイル"
-                    Cls = JsonSerializer.Deserialize(Of TrafficInfo)(str)
+                    Cls = JsonSerializer.Deserialize(Of TrafficInfoList)(str)
             End Select
 
         Catch ex As FileNotFoundException
