@@ -21,6 +21,8 @@ Public Class Form1
         RadioControl.InfoText = "ロード完了"
         Label8.Text = MusicPlayer.MusicList.Count & "曲"
 
+        CheckBox1.Checked = RadioControl.Setting.FullChorus
+
         'リストビューに音楽を登録
         For Each oMusic As Music In MusicPlayer.MusicList
             Dim oListViewItem As ListViewItem = ListView1.Items.Add(oMusic.Title)

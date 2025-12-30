@@ -21,9 +21,4 @@
     '交通情報の時間間隔
     Public Property TrafficInterval As Integer = 30
 
-
-
-
-
-
 End Class
