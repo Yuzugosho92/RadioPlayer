@@ -35,7 +35,7 @@ Public Class RadioControl
         Me.Owner = Owner
 
         Setting = New Setting
-        MusicPlayer = New MusicPlayer(Setting)
+        MusicPlayer = New MusicPlayer(Me)
         TalkPlayer = New TalkPlayer(Setting)
 
         TrafficInfo = New TrafficInfo(Setting, Me)
@@ -58,7 +58,7 @@ Public Class RadioControl
 
         '再生位置で分岐
         Select Case TimeCount
-            Case Is >= (MusicPlayer.MusicLength)
+            Case Is >= MusicPlayer.MusicLength
                 '曲が終了する時間ならば
 
                 OnFadeOut = False

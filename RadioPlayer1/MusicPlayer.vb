@@ -5,8 +5,8 @@ Imports Shell32
 
 Public Class MusicPlayer
 
-    '基本設定ファイル
-    Public ReadOnly Property Setting As Setting
+    '親ラジオコントロールクラス
+    Public Property RadioControl As RadioControl
 
     '音楽プレイヤー
     Public ReadOnly Property Wo As WaveOut
@@ -29,8 +29,8 @@ Public Class MusicPlayer
 
 
     'インスタンス時
-    Sub New(Setting As Setting)
-        Me.Setting = Setting
+    Sub New(ByRef RadioControl As RadioControl)
+        Me.RadioControl = RadioControl
     End Sub
 
 
@@ -73,12 +73,7 @@ Public Class MusicPlayer
             Exit Sub
         End Try
 
-
-
-
-
-
-
+        '再生メソッドへ
         Play()
 
     End Sub
@@ -87,7 +82,7 @@ Public Class MusicPlayer
     '音楽を再生する
     Private Sub Play()
 
-        If Setting.Gein OrElse SelectMusic.Gein = 0 Then
+        If RadioControl.Setting.Gein OrElse SelectMusic.Gein = 0 Then
             'ゲイン値を計算
             Dim Gain = New WeighingGain
             MusicReader.Volume = Gain.WeingingGein(SelectMusic.FileNameFull)
@@ -102,7 +97,7 @@ Public Class MusicPlayer
         OffsetSample.SkipOver = TimeSpan.FromSeconds(SelectMusic.StartTime)
 
         '曲の終了位置を設定
-        If SelectMusic.EndingTime = 0 OrElse Setting.FullChorus OrElse SelectMusic.TypeEnum = Music.WaveType.Traffic Then
+        If SelectMusic.EndingTime = 0 OrElse RadioControl.Setting.FullChorus OrElse SelectMusic.TypeEnum = Music.WaveType.Traffic Then
             MusicLength = Int(MusicReader.TotalTime.TotalSeconds)
         Else
             OffsetSample.Take = TimeSpan.FromSeconds(SelectMusic.EndingTime)
@@ -133,27 +128,12 @@ Public Class MusicPlayer
             '一時停止
             Wo.Stop()
 
-            'If Wo2 IsNot Nothing Then
-            '    Wo2.Stop()
-            'End If
-
             Return "再開"
 
         Else
             '一時停止中の場合
-
-            'If CheckBox1.Checked OrElse SelectMusic.EndingTime = 0 Then
-            '    MusicLength = MusicReader.TotalTime.TotalSeconds
-            'Else
-            '    MusicLength = SelectMusic.EndingTime
-            'End If
-
             '再生を再開
             Wo.Play()
-
-            'If Wo2 IsNot Nothing Then
-            '    Wo2.Play()
-            'End If
 
             Return "一時停止"
         End If
@@ -169,13 +149,10 @@ Public Class MusicPlayer
 
     '曲の終了位置を変更
     Public Sub EndingTimeChange()
-        '設定を反転する
-        Setting.FullChorus = Not Setting.FullChorus
-
         '曲を選択している場合
         If Wo IsNot Nothing Then
 
-            If Setting.FullChorus OrElse SelectMusic.EndingTime = 0 Then
+            If RadioControl.Setting.FullChorus OrElse SelectMusic.EndingTime = 0 Then
                 MusicLength = Int(MusicReader.TotalTime.TotalSeconds)
             Else
                 MusicLength = SelectMusic.EndingTime

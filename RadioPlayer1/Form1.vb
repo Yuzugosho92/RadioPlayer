@@ -142,11 +142,7 @@ Public Class Form1
         MusicPlayer.SelectMusic.OutroTime = CInt(NUD_OutroTime.Value)
         MusicPlayer.SelectMusic.IntroMaxLength = CInt(NUD_IntroMaxLength.Value)
 
-        If RadioControl.Setting.FullChorus OrElse MusicPlayer.SelectMusic.EndingTime = 0 Then
-            MusicPlayer.MusicLength = MusicPlayer.MusicReader.TotalTime.TotalSeconds
-        Else
-            MusicPlayer.MusicLength = CInt(NUD_EndingTime.Value)
-        End If
+        MusicPlayer.EndingTimeChange()
 
     End Sub
 
@@ -207,6 +203,8 @@ Public Class Form1
 
     'フルコーラス設定を反転する
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
+        RadioControl.Setting.FullChorus = CheckBox1.Checked
+
         MusicPlayer.EndingTimeChange()
     End Sub
 

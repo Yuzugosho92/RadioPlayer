@@ -77,10 +77,8 @@
 
         '続く音声を順次作成
         Parallel.For(1, Scenario.Count, Async Sub(i)
-
                                             Bt.Add(i, Await TalkPlayer.TextByteCreate(Scenario(i).Text, Scenario(i).Voice.Id)）
                                         End Sub)
-
 
         'テキストを表示
         RadioControl.InfoText = "By." & Scenario(0).Voice.Name & vbCrLf & Scenario(0).Text
@@ -91,16 +89,21 @@
         Await TalkPlayer.ByteArrayPlay(Bt(0), True)
 
         For i As Integer = 1 To Scenario.Count - 1
-            'テキストを表示
-            RadioControl.InfoText = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
+            Do
+                '音声を再生
+                If Bt IsNot Nothing AndAlso Bt.ContainsKey(i) Then
+                    'テキストを表示
+                    RadioControl.InfoText = "By." & Scenario(i).Voice.Name & vbCrLf & Scenario(i).Text
 
-            'ラジオコントロールクラスに、情報文を変更したことを伝える
-            RadioControl.InfoTextChanged()
+                    'ラジオコントロールクラスに、情報文を変更したことを伝える
+                    RadioControl.InfoTextChanged()
 
-            '音声を再生
-            If Bt IsNot Nothing AndAlso Bt.ContainsKey(i) Then
-                Await TalkPlayer.ByteArrayPlay(Bt(i), True)
-            End If
+                    Await TalkPlayer.ByteArrayPlay(Bt(i), True)
+                    Exit Do
+                End If
+
+                Await Task.Delay(100)
+            Loop
         Next
 
         '今の時刻を記録する
