@@ -23,11 +23,10 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         components = New ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Button1 = New Button()
         Timer1 = New Timer(components)
-        BackgroundWorker1 = New ComponentModel.BackgroundWorker()
         Label1 = New Label()
-        Label2 = New Label()
         NUD_StartTime = New NumericUpDown()
         NUD_EndingTime = New NumericUpDown()
         NUD_IntroTime = New NumericUpDown()
@@ -60,8 +59,9 @@ Partial Class Form1
         ToolStripMenuItem1 = New ToolStripMenuItem()
         SettingToolStripMenuItem = New ToolStripMenuItem()
         CheckBox1 = New CheckBox()
-        Timer2 = New Timer(components)
         Button5 = New Button()
+        PictureBox1 = New PictureBox()
+        ImageList1 = New ImageList(components)
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_IntroTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -70,6 +70,7 @@ Partial Class Form1
         GroupBox1.SuspendLayout()
         ContextMenuStrip1.SuspendLayout()
         MenuStrip1.SuspendLayout()
+        CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' Button1
@@ -86,33 +87,17 @@ Partial Class Form1
         Timer1.Enabled = True
         Timer1.Interval = 200
         ' 
-        ' BackgroundWorker1
-        ' 
-        BackgroundWorker1.WorkerReportsProgress = True
-        ' 
         ' Label1
         ' 
         Label1.BackColor = Color.FromArgb(CByte(64), CByte(64), CByte(64))
         Label1.BorderStyle = BorderStyle.Fixed3D
         Label1.Dock = DockStyle.Top
-        Label1.Font = New Font("Rounded M+ 1c regular", 13.999999F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
+        Label1.Font = New Font("Yu Gothic UI", 14F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
         Label1.ForeColor = SystemColors.Window
         Label1.Location = New Point(0, 33)
         Label1.Name = "Label1"
         Label1.Size = New Size(921, 92)
         Label1.TabIndex = 4
-        ' 
-        ' Label2
-        ' 
-        Label2.AllowDrop = True
-        Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-        Label2.BorderStyle = BorderStyle.FixedSingle
-        Label2.Location = New Point(561, 165)
-        Label2.Name = "Label2"
-        Label2.Size = New Size(350, 232)
-        Label2.TabIndex = 6
-        Label2.Text = "ここに音楽ファイルを投入" & vbCrLf & "(Wave, MP3, MP4, m4a, FLAC)"
-        Label2.TextAlign = ContentAlignment.MiddleCenter
         ' 
         ' NUD_StartTime
         ' 
@@ -266,6 +251,7 @@ Partial Class Form1
         ' 
         ' GroupBox1
         ' 
+        GroupBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Right
         GroupBox1.Controls.Add(Label3)
         GroupBox1.Controls.Add(NUD_StartTime)
         GroupBox1.Controls.Add(NUD_EndingTime)
@@ -278,7 +264,7 @@ Partial Class Form1
         GroupBox1.Controls.Add(Button50)
         GroupBox1.Controls.Add(NUD_IntroMaxLength)
         GroupBox1.Controls.Add(Button8)
-        GroupBox1.Location = New Point(10, 400)
+        GroupBox1.Location = New Point(546, 368)
         GroupBox1.Name = "GroupBox1"
         GroupBox1.Size = New Size(363, 260)
         GroupBox1.TabIndex = 4
@@ -288,17 +274,17 @@ Partial Class Form1
         ' Label10
         ' 
         Label10.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-        Label10.BackColor = Color.FromArgb(CByte(0), CByte(64), CByte(64))
         Label10.BorderStyle = BorderStyle.Fixed3D
-        Label10.Font = New Font("Rounded M+ 1c regular", 10.999999F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
-        Label10.ForeColor = Color.White
-        Label10.Location = New Point(10, 165)
+        Label10.Font = New Font("Yu Gothic UI", 12F, FontStyle.Regular, GraphicsUnit.Point, CByte(128))
+        Label10.ForeColor = SystemColors.WindowText
+        Label10.Location = New Point(202, 169)
         Label10.Name = "Label10"
-        Label10.Size = New Size(545, 232)
+        Label10.Size = New Size(707, 184)
         Label10.TabIndex = 31
         ' 
         ' ListView1
         ' 
+        ListView1.AllowDrop = True
         ListView1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
         ListView1.AutoArrange = False
         ListView1.Columns.AddRange(New ColumnHeader() {ColumnHeader1, ColumnHeader2, ColumnHeader3})
@@ -306,10 +292,10 @@ Partial Class Form1
         ListView1.FullRowSelect = True
         ListView1.GridLines = True
         ListView1.HideSelection = True
-        ListView1.Location = New Point(389, 411)
+        ListView1.Location = New Point(10, 368)
         ListView1.MultiSelect = False
         ListView1.Name = "ListView1"
-        ListView1.Size = New Size(520, 247)
+        ListView1.Size = New Size(520, 311)
         ListView1.TabIndex = 11
         ListView1.UseCompatibleStateImageBehavior = False
         ListView1.View = View.Details
@@ -402,11 +388,31 @@ Partial Class Form1
         Button5.Text = "NEXT"
         Button5.UseVisualStyleBackColor = True
         ' 
+        ' PictureBox1
+        ' 
+        PictureBox1.BackColor = SystemColors.Window
+        PictureBox1.BorderStyle = BorderStyle.Fixed3D
+        PictureBox1.Location = New Point(12, 169)
+        PictureBox1.Name = "PictureBox1"
+        PictureBox1.Size = New Size(184, 184)
+        PictureBox1.SizeMode = PictureBoxSizeMode.CenterImage
+        PictureBox1.TabIndex = 37
+        PictureBox1.TabStop = False
+        ' 
+        ' ImageList1
+        ' 
+        ImageList1.ColorDepth = ColorDepth.Depth32Bit
+        ImageList1.ImageStream = CType(resources.GetObject("ImageList1.ImageStream"), ImageListStreamer)
+        ImageList1.TransparentColor = Color.Transparent
+        ImageList1.Images.SetKeyName(0, "45782427.50321346.jpg")
+        ImageList1.Images.SetKeyName(1, "zzm_zunmon013.png")
+        ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(921, 756)
+        Controls.Add(PictureBox1)
         Controls.Add(Button5)
         Controls.Add(CheckBox1)
         Controls.Add(ListView1)
@@ -417,13 +423,12 @@ Partial Class Form1
         Controls.Add(Button4)
         Controls.Add(Button2)
         Controls.Add(Button3)
-        Controls.Add(Label2)
         Controls.Add(Label1)
         Controls.Add(Button1)
         Controls.Add(MenuStrip1)
         MinimumSize = New Size(943, 812)
         Name = "Form1"
-        Text = "ラジオ風プレイヤー"
+        Text = "ラジオ風プレイヤー v.1.4"
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).EndInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).EndInit()
         CType(NUD_IntroTime, ComponentModel.ISupportInitialize).EndInit()
@@ -434,14 +439,13 @@ Partial Class Form1
         ContextMenuStrip1.ResumeLayout(False)
         MenuStrip1.ResumeLayout(False)
         MenuStrip1.PerformLayout()
+        CType(PictureBox1, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
 
     Friend WithEvents Button1 As Button
-    Friend WithEvents BackgroundWorker1 As System.ComponentModel.BackgroundWorker
     Friend WithEvents Label1 As Label
-    Friend WithEvents Label2 As Label
     Friend WithEvents NUD_StartTime As NumericUpDown
     Friend WithEvents NUD_EndingTime As NumericUpDown
     Friend WithEvents NUD_IntroTime As NumericUpDown
@@ -473,9 +477,10 @@ Partial Class Form1
     Friend WithEvents ToolStripMenuItem2 As ToolStripSeparator
     Friend WithEvents DelToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents CheckBox1 As CheckBox
-    Friend WithEvents Timer2 As Timer
     Friend WithEvents SettingToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents Button5 As Button
     Private WithEvents Timer1 As Timer
+    Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents ImageList1 As ImageList
 
 End Class

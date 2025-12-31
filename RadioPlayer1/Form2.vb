@@ -19,6 +19,10 @@
         txb_Artist.Text = editMusic.Artist
         txb_ArtistSort.Text = editMusic.ArtistSort
 
+        txb_Lyricist.Text = editMusic.Lyricist
+        txb_Composer.Text = editMusic.Composer
+        txb_ReleaseYear.Text = editMusic.ReleaseYear
+
         Return Me.ShowDialog(Owner)
 
     End Function
@@ -34,6 +38,10 @@
         EditMusic.TitleSort = txb_TitleSort.Text
         EditMusic.Artist = txb_Artist.Text
         EditMusic.ArtistSort = txb_ArtistSort.Text
+
+        EditMusic.Lyricist = txb_Lyricist.Text
+        EditMusic.Composer = txb_Composer.Text
+        EditMusic.ReleaseYear = txb_ReleaseYear.Text
 
         lbl_Title.Text = EditMusic.Title
 

@@ -38,6 +38,12 @@ Partial Class Form2
         Label10 = New Label()
         Label11 = New Label()
         btn_Cancel = New Button()
+        txb_Lyricist = New TextBox()
+        Label1 = New Label()
+        txb_Composer = New TextBox()
+        Label3 = New Label()
+        txb_ReleaseYear = New TextBox()
+        Label4 = New Label()
         GroupBox2.SuspendLayout()
         SuspendLayout()
         ' 
@@ -45,7 +51,7 @@ Partial Class Form2
         ' 
         btn_OK.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
         btn_OK.DialogResult = DialogResult.OK
-        btn_OK.Location = New Point(436, 316)
+        btn_OK.Location = New Point(436, 432)
         btn_OK.Name = "btn_OK"
         btn_OK.Size = New Size(112, 34)
         btn_OK.TabIndex = 11
@@ -66,6 +72,12 @@ Partial Class Form2
         ' GroupBox2
         ' 
         GroupBox2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        GroupBox2.Controls.Add(txb_ReleaseYear)
+        GroupBox2.Controls.Add(Label4)
+        GroupBox2.Controls.Add(txb_Composer)
+        GroupBox2.Controls.Add(Label3)
+        GroupBox2.Controls.Add(txb_Lyricist)
+        GroupBox2.Controls.Add(Label1)
         GroupBox2.Controls.Add(txb_ArtistSort)
         GroupBox2.Controls.Add(txb_Artist)
         GroupBox2.Controls.Add(txb_TitleSort)
@@ -80,7 +92,7 @@ Partial Class Form2
         GroupBox2.Controls.Add(Label11)
         GroupBox2.Location = New Point(12, 56)
         GroupBox2.Name = "GroupBox2"
-        GroupBox2.Size = New Size(654, 253)
+        GroupBox2.Size = New Size(654, 368)
         GroupBox2.TabIndex = 1
         GroupBox2.TabStop = False
         GroupBox2.Text = "基本情報"
@@ -120,7 +132,7 @@ Partial Class Form2
         ' Label12
         ' 
         Label12.AutoSize = True
-        Label12.Location = New Point(6, 209)
+        Label12.Location = New Point(4, 215)
         Label12.Name = "Label12"
         Label12.Size = New Size(87, 25)
         Label12.TabIndex = 26
@@ -146,7 +158,7 @@ Partial Class Form2
         ' Label2
         ' 
         Label2.AutoSize = True
-        Label2.Location = New Point(6, 27)
+        Label2.Location = New Point(6, 26)
         Label2.Name = "Label2"
         Label2.Size = New Size(48, 25)
         Label2.TabIndex = 12
@@ -155,7 +167,7 @@ Partial Class Form2
         ' Label8
         ' 
         Label8.AutoSize = True
-        Label8.Location = New Point(6, 64)
+        Label8.Location = New Point(6, 65)
         Label8.Name = "Label8"
         Label8.Size = New Size(85, 25)
         Label8.TabIndex = 13
@@ -164,7 +176,7 @@ Partial Class Form2
         ' Label9
         ' 
         Label9.AutoSize = True
-        Label9.Location = New Point(6, 101)
+        Label9.Location = New Point(6, 104)
         Label9.Name = "Label9"
         Label9.Size = New Size(44, 25)
         Label9.TabIndex = 14
@@ -173,7 +185,7 @@ Partial Class Form2
         ' Label10
         ' 
         Label10.AutoSize = True
-        Label10.Location = New Point(6, 138)
+        Label10.Location = New Point(6, 141)
         Label10.Name = "Label10"
         Label10.Size = New Size(77, 25)
         Label10.TabIndex = 15
@@ -182,7 +194,7 @@ Partial Class Form2
         ' Label11
         ' 
         Label11.AutoSize = True
-        Label11.Location = New Point(6, 174)
+        Label11.Location = New Point(6, 178)
         Label11.Name = "Label11"
         Label11.Size = New Size(54, 25)
         Label11.TabIndex = 22
@@ -192,18 +204,69 @@ Partial Class Form2
         ' 
         btn_Cancel.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
         btn_Cancel.DialogResult = DialogResult.Cancel
-        btn_Cancel.Location = New Point(554, 316)
+        btn_Cancel.Location = New Point(554, 432)
         btn_Cancel.Name = "btn_Cancel"
         btn_Cancel.Size = New Size(112, 34)
         btn_Cancel.TabIndex = 12
         btn_Cancel.Text = "キャンセル"
         btn_Cancel.UseVisualStyleBackColor = True
         ' 
+        ' txb_Lyricist
+        ' 
+        txb_Lyricist.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        txb_Lyricist.Location = New Point(145, 249)
+        txb_Lyricist.Name = "txb_Lyricist"
+        txb_Lyricist.Size = New Size(496, 31)
+        txb_Lyricist.TabIndex = 27
+        ' 
+        ' Label1
+        ' 
+        Label1.AutoSize = True
+        Label1.Location = New Point(6, 252)
+        Label1.Name = "Label1"
+        Label1.Size = New Size(65, 25)
+        Label1.TabIndex = 28
+        Label1.Text = "Lyricist"
+        ' 
+        ' txb_Composer
+        ' 
+        txb_Composer.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        txb_Composer.Location = New Point(145, 286)
+        txb_Composer.Name = "txb_Composer"
+        txb_Composer.Size = New Size(496, 31)
+        txb_Composer.TabIndex = 29
+        ' 
+        ' Label3
+        ' 
+        Label3.AutoSize = True
+        Label3.Location = New Point(6, 289)
+        Label3.Name = "Label3"
+        Label3.Size = New Size(95, 25)
+        Label3.TabIndex = 30
+        Label3.Text = "Composer"
+        ' 
+        ' txb_ReleaseYear
+        ' 
+        txb_ReleaseYear.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        txb_ReleaseYear.Location = New Point(145, 323)
+        txb_ReleaseYear.Name = "txb_ReleaseYear"
+        txb_ReleaseYear.Size = New Size(496, 31)
+        txb_ReleaseYear.TabIndex = 31
+        ' 
+        ' Label4
+        ' 
+        Label4.AutoSize = True
+        Label4.Location = New Point(6, 326)
+        Label4.Name = "Label4"
+        Label4.Size = New Size(104, 25)
+        Label4.TabIndex = 32
+        Label4.Text = "ReleaseYear"
+        ' 
         ' Form2
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(675, 362)
+        ClientSize = New Size(675, 478)
         Controls.Add(btn_Cancel)
         Controls.Add(btn_OK)
         Controls.Add(GroupBox2)
@@ -230,4 +293,10 @@ Partial Class Form2
     Friend WithEvents txb_TitleSort As TextBox
     Friend WithEvents txb_Title As TextBox
     Friend WithEvents Label12 As Label
+    Friend WithEvents txb_ReleaseYear As TextBox
+    Friend WithEvents Label4 As Label
+    Friend WithEvents txb_Composer As TextBox
+    Friend WithEvents Label3 As Label
+    Friend WithEvents txb_Lyricist As TextBox
+    Protected WithEvents Label1 As Label
 End Class

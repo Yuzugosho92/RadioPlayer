@@ -1,7 +1,5 @@
 ﻿Imports System.Text.Json.Serialization
 Imports System.Text.RegularExpressions
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
-Imports RadioPlayer1.Talk
 
 Public Class MusicList
     Inherits List(Of Music)
@@ -167,6 +165,88 @@ Public Class Music
 
 
     Public Property PlayCount As Integer
+
+    '作詞者
+    Public Property Lyricist As String
+
+    '作曲者
+    Public Property Composer As String
+
+    'リリース年
+    Public Property ReleaseYear As String
+
+    'リリース年を西暦の文字列で返す
+    <JsonIgnore>
+    Public ReadOnly Property ReleaseYearIsWestern As String
+        Get
+            Return Val(_ReleaseYear) & "年"
+        End Get
+    End Property
+
+    'リリース年を和暦の文字列で返す
+    <JsonIgnore>
+    Public ReadOnly Property ReleaseYearIsJapanese As String
+        Get
+            Dim Year As Integer = Val(_ReleaseYear)
+
+            Select Case Year
+                Case 1868
+                    If _ReleaseYear.Contains("*"c) Then
+                        Return ""
+                    Else
+                        Return "明治元年"
+                    End If
+
+                Case 1869 To 1911
+                    Return "明治" & CStr(Year - 1867) & "年"
+
+                Case 1912
+                    If _ReleaseYear.Contains("*"c) Then
+                        Return "明治45年"
+                    Else
+                        Return "大正元年"
+                    End If
+
+                Case 1913 To 1925
+                    Return "大正" & CStr(Year - 1911) & "年"
+
+                Case 1926
+                    If _ReleaseYear.Contains("*"c) Then
+                        Return "大正15年"
+                    Else
+                        Return "昭和元年"
+                    End If
+
+                Case 1927 To 1988
+                    Return "昭和" & CStr(Year - 1925) & "年"
+
+                Case 1989
+                    If _ReleaseYear.Contains("*"c) Then
+                        Return "昭和64年"
+                    Else
+                        Return "平成元年"
+                    End If
+
+                Case 1989 To 2018
+                    Return "平成" & CStr(Year - 1988) & "年"
+
+                Case 2019
+                    If _ReleaseYear.Contains("*"c) Then
+                        Return "平成31年"
+                    Else
+                        Return "令和元年"
+                    End If
+                Case Is >= 2020
+                    Return "令和" & CStr(Year - 2018) & "年"
+
+                Case Else
+                    Return ""
+            End Select
+
+        End Get
+    End Property
+
+
 
 
     '自分自身がotherより小さいときはマイナスの数、大きいときはプラスの数、

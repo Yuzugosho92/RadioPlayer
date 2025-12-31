@@ -94,13 +94,12 @@ Public Class Form1
 
 
     '音楽ファイルがドラッグされた時
-    Private Sub Label2_DragEnter(sender As Object, e As DragEventArgs) Handles Label2.DragEnter
+    Private Sub ListView1_DragEnter(sender As Object, e As DragEventArgs) Handles ListView1.DragEnter
         e.Effect = DragDropEffects.Copy
     End Sub
 
-
     '音楽ファイルがドロップされた時
-    Private Sub Label2_DragDrop(sender As Object, e As DragEventArgs) Handles Label2.DragDrop
+    Private Sub ListView1_DragDrop(sender As Object, e As DragEventArgs) Handles ListView1.DragDrop
         Dim InNewMusic As Music = Nothing
 
         'コントロール内にドロップされたとき実行される
@@ -131,7 +130,6 @@ Public Class Form1
         If InNewMusic IsNot Nothing Then
             RadioControl.MusicChange(InNewMusic)
         End If
-
     End Sub
 
 
@@ -218,29 +216,54 @@ Public Class Form1
 
 
     '情報ラベルを再描画
+    Dim InfoPaint As New InfoPaint
     Private Sub Label1_Paint(sender As Object, e As PaintEventArgs) Handles Label1.Paint
-        '文字描画位置を右寄せにする
-        Dim sf As New StringFormat()
-        sf.Alignment = StringAlignment.Far
 
-        '時刻表示枠を指定
-        Dim TimeRectangle As New RectangleF(Label1.Width - 150, 2, 148, 42)
+        InfoPaint.Paint(e.Graphics, MusicPlayer.SelectMusic, Label1.Font)
 
-        '現在の時刻を描画
-        e.Graphics.DrawString(Format(Now, "HH:mm:ss"), Label1.Font, Brushes.White, TimeRectangle, sf)
-
-        If MusicPlayer.SelectMusic IsNot Nothing Then
-            Dim TimeCount As Integer = Int(MusicPlayer.MusicReader.CurrentTime.TotalSeconds)
-            TimeRectangle = New RectangleF(Label1.Width - 150, 42, 148, 42)
-            e.Graphics.DrawString(TimeCount, Label1.Font, Brushes.White, TimeRectangle, sf)
+        InfoPaint.TimePaint(e.Graphics, MusicPlayer, Label1.Width, Label1.Font)
 
 
-            e.Graphics.DrawString(MusicPlayer.SelectMusic.Title, Label1.Font, Brushes.LightPink, 0, 2)
 
-            e.Graphics.DrawString(MusicPlayer.SelectMusic.Artist, Label1.Font, Brushes.White, 0, 42)
+        ''文字描画位置を右寄せにする
+        'Dim sf As New StringFormat()
+        'sf.Alignment = StringAlignment.Far
+
+        ''時刻表示枠を指定
+        'Dim TimeRectangle As New RectangleF(Label1.Width - 150, 2, 148, 42)
+
+        ''現在の時刻を描画
+        'e.Graphics.DrawString(Format(Now, "HH:mm:ss"), Label1.Font, Brushes.White, TimeRectangle, sf)
+
+        'If MusicPlayer.SelectMusic IsNot Nothing Then
+        '    Dim TimeCount As Integer = Int(MusicPlayer.MusicReader.CurrentTime.TotalSeconds)
+        '    TimeRectangle = New RectangleF(Label1.Width - 150, 42, 148, 42)
+        '    e.Graphics.DrawString(TimeCount, Label1.Font, Brushes.White, TimeRectangle, sf)
 
 
-        End If
+        '    e.Graphics.DrawString("1973年", Label1.Font, Brushes.White, 2, 2)
+        '    e.Graphics.DrawString("昭和48年", Label1.Font, Brushes.White, 2, 42)
+
+
+
+        '    e.Graphics.DrawString(MusicPlayer.SelectMusic.Title, Label1.Font, Brushes.LightPink, 130, 2)
+
+        '    e.Graphics.DrawString(MusicPlayer.SelectMusic.Artist, Label1.Font, Brushes.White, 130, 42)
+
+
+        '    Dim CreatorRectangle As New RectangleF(400, 2, 400, 42)
+        '    e.Graphics.DrawString("作詞 井上陽水", Label1.Font, Brushes.White, CreatorRectangle)
+
+        '    CreatorRectangle = New RectangleF(400, 42, 400, 42)
+        '    e.Graphics.DrawString("作曲 井上陽水", Label1.Font, Brushes.White, CreatorRectangle)
+
+
+        'End If
+
+
+
+
+
     End Sub
 
 
@@ -333,7 +356,32 @@ Public Class Form1
         Label10.Text = RadioControl.InfoText
     End Sub
 
+    Private Sub PictureBox1_Paint(sender As Object, e As PaintEventArgs) Handles PictureBox1.Paint
 
+
+
+        'ImageオブジェクトのGraphicsオブジェクトを作成する
+        Dim g = e.Graphics
+
+        '画像ファイルのImageオブジェクトを作成する
+        Dim img As New Bitmap(Application.StartupPath & "\zzm_zunmon013.png")
+
+        '切り取る部分の範囲を決定する。ここでは、位置(10,10)、大きさ100x100
+        Dim srcRect As New Rectangle(260, 200, PictureBox1.Width, PictureBox1.Height)
+
+        '描画する部分の範囲を決定する。ここでは、位置(0,0)、大きさ100x100で描画する
+        Dim desRect As New Rectangle(0, 0, PictureBox1.Width, PictureBox1.Height)
+
+        '補間方法として最近傍補間を指定する
+        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor
+
+        '画像の一部を描画する
+        g.DrawImage(img, desRect, srcRect, GraphicsUnit.Pixel)
+
+
+
+
+    End Sub
 
 End Class
 
