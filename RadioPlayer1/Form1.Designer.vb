@@ -23,7 +23,6 @@ Partial Class Form1
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         components = New ComponentModel.Container()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Button1 = New Button()
         Timer1 = New Timer(components)
         Label1 = New Label()
@@ -61,7 +60,7 @@ Partial Class Form1
         CheckBox1 = New CheckBox()
         Button5 = New Button()
         PictureBox1 = New PictureBox()
-        ImageList1 = New ImageList(components)
+        PictureBox2 = New PictureBox()
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_EndingTime, ComponentModel.ISupportInitialize).BeginInit()
         CType(NUD_IntroTime, ComponentModel.ISupportInitialize).BeginInit()
@@ -71,6 +70,7 @@ Partial Class Form1
         ContextMenuStrip1.SuspendLayout()
         MenuStrip1.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
+        CType(PictureBox2, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' Button1
@@ -279,7 +279,7 @@ Partial Class Form1
         Label10.ForeColor = SystemColors.WindowText
         Label10.Location = New Point(202, 169)
         Label10.Name = "Label10"
-        Label10.Size = New Size(707, 184)
+        Label10.Size = New Size(517, 184)
         Label10.TabIndex = 31
         ' 
         ' ListView1
@@ -399,19 +399,24 @@ Partial Class Form1
         PictureBox1.TabIndex = 37
         PictureBox1.TabStop = False
         ' 
-        ' ImageList1
+        ' PictureBox2
         ' 
-        ImageList1.ColorDepth = ColorDepth.Depth32Bit
-        ImageList1.ImageStream = CType(resources.GetObject("ImageList1.ImageStream"), ImageListStreamer)
-        ImageList1.TransparentColor = Color.Transparent
-        ImageList1.Images.SetKeyName(0, "45782427.50321346.jpg")
-        ImageList1.Images.SetKeyName(1, "zzm_zunmon013.png")
+        PictureBox2.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        PictureBox2.BackColor = SystemColors.Window
+        PictureBox2.BorderStyle = BorderStyle.Fixed3D
+        PictureBox2.Location = New Point(725, 169)
+        PictureBox2.Name = "PictureBox2"
+        PictureBox2.Size = New Size(184, 184)
+        PictureBox2.SizeMode = PictureBoxSizeMode.Zoom
+        PictureBox2.TabIndex = 38
+        PictureBox2.TabStop = False
         ' 
         ' Form1
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(921, 756)
+        Controls.Add(PictureBox2)
         Controls.Add(PictureBox1)
         Controls.Add(Button5)
         Controls.Add(CheckBox1)
@@ -440,6 +445,7 @@ Partial Class Form1
         MenuStrip1.ResumeLayout(False)
         MenuStrip1.PerformLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).EndInit()
+        CType(PictureBox2, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -481,6 +487,6 @@ Partial Class Form1
     Friend WithEvents Button5 As Button
     Private WithEvents Timer1 As Timer
     Friend WithEvents PictureBox1 As PictureBox
-    Friend WithEvents ImageList1 As ImageList
+    Friend WithEvents PictureBox2 As PictureBox
 
 End Class

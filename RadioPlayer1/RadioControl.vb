@@ -193,6 +193,9 @@ Public Class RadioControl
             Exit Sub
         End If
 
+        'トーク音声を一旦削除
+        TalkPlayer.WoClose()
+
         Dim oTalk As Talk
         Dim Tx As String 'テロップ表示用
         Dim Scenario As String 'スピーク用
@@ -274,9 +277,14 @@ Scenario1: Dim SelectedVoice As Integer
         End If
 
 
+        Try
+            Await TalkPlayer.Talk(Scenario, TalkPlayer.VoiceList(SelectedVoice).Id, False)
+        Catch ex As Net.Http.HttpRequestException
+            'VOICEVOX本体が起動していない時
+            _InfoText = "VOICEVOXが起動していません"
+        End Try
 
 
-        Await TalkPlayer.Talk(Scenario, TalkPlayer.VoiceList(SelectedVoice).Id, False)
 
 
 

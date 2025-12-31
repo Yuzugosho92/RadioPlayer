@@ -91,10 +91,16 @@ Public Class TalkPlayer
         End Get
     End Property
 
+    'トークを再生する
+    Public Sub Start()
+        If Wo IsNot Nothing Then
+            Wo.Play()
+        End If
+    End Sub
 
     '再生を止める
     Public Sub [Stop]()
-        If PlaybackState = PlaybackState.Playing Then
+        If Wo IsNot Nothing Then
             Wo.Stop()
         End If
     End Sub
@@ -111,5 +117,24 @@ Public Class TalkPlayer
     End Sub
 
 
+    'トークを一時停止or再開する
+    Public Sub PalyOrStop()
+
+        If Wo IsNot Nothing Then
+
+            If Wo.PlaybackState = PlaybackState.Playing Then
+                '再生中の場合
+                '一時停止
+                Wo.Stop()
+
+            Else
+                '一時停止中の場合
+                '再生を再開
+                Wo.Play()
+            End If
+
+        End If
+
+    End Sub
 
 End Class

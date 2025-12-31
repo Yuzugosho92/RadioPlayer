@@ -5,7 +5,7 @@ Public Class InfoPaint
     Private Const FirstHeight = 2
     Private Const SecondHeight = 42
 
-    Public Sub Paint(g As Graphics, Music As Music, Font As Font)
+    Public Sub Paint(g As Graphics, Music As Music, LabelWidth As Integer, Font As Font)
 
         '曲が選択されていれば
         If Music IsNot Nothing Then
@@ -17,19 +17,22 @@ Public Class InfoPaint
                 g.DrawString(Music.ReleaseYearIsJapanese, Font, Brushes.White, 2, SecondHeight)
             End If
 
+            Dim sf As New StringFormat
+            sf.Trimming = StringTrimming.EllipsisCharacter
+
             'タイトルを描画
-            g.DrawString(Music.Title, Font, Brushes.LightGreen, 130, FirstHeight)
+            g.DrawString(Music.Title, Font, Brushes.LightGreen, New RectangleF(130, FirstHeight, LabelWidth \ 2 - 124, 42), sf)
             'アーティストを描画
-            g.DrawString(Music.Artist, Font, Brushes.White, 130, SecondHeight)
+            g.DrawString(Music.Artist, Font, Brushes.White, New RectangleF(130, SecondHeight, LabelWidth \ 2 - 124, 42), sf)
 
             '作詞者を描画
             If Music.Lyricist <> "" Then
-                g.DrawString("作詞 " & Music.Lyricist, Font, Brushes.White, 400, FirstHeight)
+                g.DrawString("作詞 " & Music.Lyricist, Font, Brushes.White, LabelWidth \ 2, FirstHeight)
             End If
 
             '作曲者を描画
             If Music.Composer <> "" Then
-                g.DrawString("作曲 " & Music.Composer, Font, Brushes.White, 400, SecondHeight)
+                g.DrawString("作曲 " & Music.Composer, Font, Brushes.White, LabelWidth \ 2, SecondHeight)
             End If
 
         End If
