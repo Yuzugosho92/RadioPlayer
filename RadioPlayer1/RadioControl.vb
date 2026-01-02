@@ -278,6 +278,11 @@ Scenario1: Dim SelectedVoice As Integer
 
 
         Try
+
+            'Dim CeVIO As New CeVIO
+            'CeVIO.Talk(Scenario)
+
+
             Await TalkPlayer.Talk(Scenario, TalkPlayer.VoiceList(SelectedVoice).Id, False)
         Catch ex As Net.Http.HttpRequestException
             'VOICEVOX本体が起動していない時

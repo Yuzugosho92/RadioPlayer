@@ -347,8 +347,6 @@ End Class
 
 
 
-
-
 ''' <summary>
 ''' ListViewの項目の並び替えに使用するクラス
 ''' </summary>

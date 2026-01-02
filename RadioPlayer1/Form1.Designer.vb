@@ -235,7 +235,7 @@ Partial Class Form1
         ' 
         Label8.AutoSize = True
         Label8.Dock = DockStyle.Bottom
-        Label8.Location = New Point(0, 731)
+        Label8.Location = New Point(0, 675)
         Label8.Name = "Label8"
         Label8.Size = New Size(0, 25)
         Label8.TabIndex = 23
@@ -243,7 +243,7 @@ Partial Class Form1
         ' HScrollBar1
         ' 
         HScrollBar1.Dock = DockStyle.Bottom
-        HScrollBar1.Location = New Point(0, 692)
+        HScrollBar1.Location = New Point(0, 636)
         HScrollBar1.Name = "HScrollBar1"
         HScrollBar1.Size = New Size(921, 39)
         HScrollBar1.TabIndex = 12
@@ -295,7 +295,7 @@ Partial Class Form1
         ListView1.Location = New Point(10, 368)
         ListView1.MultiSelect = False
         ListView1.Name = "ListView1"
-        ListView1.Size = New Size(520, 311)
+        ListView1.Size = New Size(520, 260)
         ListView1.TabIndex = 11
         ListView1.UseCompatibleStateImageBehavior = False
         ListView1.View = View.Details
@@ -415,7 +415,7 @@ Partial Class Form1
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(921, 756)
+        ClientSize = New Size(921, 700)
         Controls.Add(PictureBox2)
         Controls.Add(PictureBox1)
         Controls.Add(Button5)
@@ -431,7 +431,7 @@ Partial Class Form1
         Controls.Add(Label1)
         Controls.Add(Button1)
         Controls.Add(MenuStrip1)
-        MinimumSize = New Size(943, 812)
+        MinimumSize = New Size(943, 756)
         Name = "Form1"
         Text = "ラジオ風プレイヤー v.1.4"
         CType(NUD_StartTime, ComponentModel.ISupportInitialize).EndInit()
